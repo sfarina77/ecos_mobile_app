@@ -54,8 +54,11 @@
         .login-container { display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 20px; }
         .login-input { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 1rem; background: var(--card); outline: none; }
         .login-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1); }
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; }
-        .btn-primary:active { transform: scale(0.98); }
+        
+        /* --- ESTILOS DEL BOTÓN DE CARGA --- */
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-primary:active:not(:disabled) { transform: scale(0.98); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
 
         .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); transition: 0.3s; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -102,9 +105,15 @@
                         <h1 style="color: var(--primary); font-size: 2rem; margin-bottom: 5px;">ECOS Mobile</h1>
                         <p style="color: var(--secondary);">Monitoreo de Red Escolar</p>
                     </div>
-                    <input type="text" id="userInput" class="login-input" placeholder="Usuario" autocomplete="off">
-                    <input type="password" id="passInput" class="login-input" placeholder="Contraseña">
-                    <button class="btn-primary" onclick="iniciarSesion()">Ingresar</button>
+                    
+                    <input type="text" id="userInput" class="login-input" placeholder="Usuario (Ej: admin)" autocomplete="off">
+                    <input type="password" id="passInput" class="login-input" placeholder="Contraseña (Ej: 1234)">
+                    
+                    <button id="btnIngresar" class="btn-primary" onclick="iniciarSesion()">
+                        <span id="btnTexto">Ingresar</span>
+                        <i id="btnSpinner" class="fa-solid fa-circle-notch fa-spin" style="display: none;"></i>
+                    </button>
+                    
                     <p id="errorMsg" style="color: var(--danger); text-align: center; margin-top: 15px; display: none; font-size: 0.9rem;">Credenciales incorrectas. Intenta de nuevo.</p>
                 </div>
             </div>
@@ -149,7 +158,6 @@
 
                 <div id="resultadosBusqueda">
                     <h2 id="nombreEscuelaTit" style="font-size: 1.1rem; color: var(--primary);">C.E. Albert Camus</h2>
-                    
                     <div class="card">
                         <div class="school-badge">
                             <span>Estado de Red</span>
@@ -158,7 +166,6 @@
                         <div style="height: 150px; margin-top: 15px;"><canvas id="speedChart"></canvas></div>
                         <p style="text-align: center; font-size: 0.8rem; color: var(--secondary);">Velocidad actual: <span id="velActualTxt">45</span> Mbps</p>
                     </div>
-                    
                     <div class="card">
                         <div class="school-badge" style="border:none">
                             <span>Respaldo de Batería</span>
@@ -181,61 +188,68 @@
     </div>
 
     <script>
-        // Variables globales para las gráficas
         let miGraficaPrincipal;
         let miGraficaVelocidad;
 
-        // Base de datos simulada para el buscador
         const baseDeDatos = {
-            "albert": {
-                nombre: "C.E. Albert Camus", estado: "Estable", color: "var(--success)", 
-                velocidad: [40, 42, 38, 45, 44, 45], velActual: 45, bateria: 89
-            },
-            "nacional": {
-                nombre: "Instituto Nacional San Salvador", estado: "Alerta Crítica", color: "var(--danger)", 
-                velocidad: [25, 20, 15, 12, 10, 12], velActual: 12, bateria: 20
-            }
+            "albert": { nombre: "C.E. Albert Camus", estado: "Estable", color: "var(--success)", velocidad: [40, 42, 38, 45, 44, 45], velActual: 45, bateria: 89 },
+            "nacional": { nombre: "Instituto Nacional San Salvador", estado: "Alerta Crítica", color: "var(--danger)", velocidad: [25, 20, 15, 12, 10, 12], velActual: 12, bateria: 20 }
         };
 
-        // 1. SISTEMA DE LOGIN
+        // 1. SISTEMA DE LOGIN CON ANIMACIÓN
         function iniciarSesion() {
             const user = document.getElementById('userInput').value.toLowerCase();
             const pass = document.getElementById('passInput').value;
-            
-            if (user === 'admin' && pass === '1234') {
-                document.getElementById('errorMsg').style.display = 'none';
-                document.getElementById('login').classList.remove('active');
+            const btn = document.getElementById('btnIngresar');
+            const btnTexto = document.getElementById('btnTexto');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const errorMsg = document.getElementById('errorMsg');
+
+            // Ocultamos errores previos
+            errorMsg.style.display = 'none';
+
+            // ESTADO DE CARGA: Cambiamos botón y deshabilitamos
+            btn.disabled = true;
+            btnTexto.innerText = "Verificando...";
+            btnSpinner.style.display = "inline-block";
+
+            // Simulamos el tiempo de respuesta del servidor (1.5 segundos)
+            setTimeout(() => {
+                if (user === 'admin' && pass === '1234') {
+                    // Si es exitoso, pasamos al dashboard
+                    document.getElementById('login').classList.remove('active');
+                    document.getElementById('main-header').style.display = 'flex';
+                    document.getElementById('main-nav').style.display = 'flex';
+                    document.getElementById('home').classList.add('active');
+                    
+                    inicializarGraficas();
+                    obtenerDatosDeAPI();
+                } else {
+                    // Si falla, mostramos error y regresamos el botón a la normalidad
+                    errorMsg.style.display = 'block';
+                }
                 
-                document.getElementById('main-header').style.display = 'flex';
-                document.getElementById('main-nav').style.display = 'flex';
-                document.getElementById('home').classList.add('active');
+                // RESTAURAR ESTADO DEL BOTÓN
+                btn.disabled = false;
+                btnTexto.innerText = "Ingresar";
+                btnSpinner.style.display = "none";
                 
-                inicializarGraficas();
-                obtenerDatosDeAPI();
-            } else {
-                document.getElementById('errorMsg').style.display = 'block';
-            }
+            }, 1500); // 1500 milisegundos = 1.5 segundos
         }
 
-        // 2. CAMBIAR PANTALLAS
         function showScreen(screenId, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-            
             if(element) element.classList.add('active');
         }
 
-        // 3. INICIALIZAR GRÁFICAS (Se llama después del login)
         function inicializarGraficas() {
             if(!miGraficaPrincipal) {
                 const ctxMain = document.getElementById('mainChart').getContext('2d');
                 miGraficaPrincipal = new Chart(ctxMain, {
                     type: 'doughnut',
-                    data: {
-                        labels: ['Conectadas', 'Caídas', 'Alertas'],
-                        datasets: [{ data: [0, 0, 0], backgroundColor: ['#10b981', '#ef4444', '#f59e0b'], borderWidth: 0, cutout: '80%' }]
-                    },
+                    data: { labels: ['Conectadas', 'Caídas', 'Alertas'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#10b981', '#ef4444', '#f59e0b'], borderWidth: 0, cutout: '80%' }] },
                     options: { plugins: { legend: { display: true, position: 'bottom' } }, maintainAspectRatio: false }
                 });
             }
@@ -244,65 +258,48 @@
                 const ctxSpeed = document.getElementById('speedChart').getContext('2d');
                 miGraficaVelocidad = new Chart(ctxSpeed, {
                     type: 'line',
-                    data: {
-                        labels: ['10am', '11am', '12pm', '1pm', '2pm', '3pm'], // 6 horas históricas
-                        datasets: [{ label: 'Mbps', data: baseDeDatos['albert'].velocidad, borderColor: '#1d4ed8', backgroundColor: 'rgba(29, 78, 216, 0.1)', fill: true, tension: 0.4 }]
-                    },
+                    data: { labels: ['10am', '11am', '12pm', '1pm', '2pm', '3pm'], datasets: [{ label: 'Mbps', data: baseDeDatos['albert'].velocidad, borderColor: '#1d4ed8', backgroundColor: 'rgba(29, 78, 216, 0.1)', fill: true, tension: 0.4 }] },
                     options: { plugins: { legend: { display: false } }, scales: { y: { display: false, min: 0 }, x: { grid: { display: false } } }, maintainAspectRatio: false }
                 });
             }
         }
 
-        // 4. LÓGICA DEL BUSCADOR EN TIEMPO REAL
         function ejecutarBusqueda() {
             const query = document.getElementById('inputBuscador').value.toLowerCase();
             const resultadosDiv = document.getElementById('resultadosBusqueda');
             
-            // Buscar coincidencias
             let escuelaEncontrada = null;
             if(query.includes('albert')) escuelaEncontrada = baseDeDatos['albert'];
             if(query.includes('nacional')) escuelaEncontrada = baseDeDatos['nacional'];
 
             if(escuelaEncontrada) {
                 resultadosDiv.style.display = 'block';
-                
-                // Actualizar Textos
                 document.getElementById('nombreEscuelaTit').innerText = escuelaEncontrada.nombre;
                 document.getElementById('estadoRedTxt').innerHTML = `<span class="status-dot" style="background: ${escuelaEncontrada.color};"></span>${escuelaEncontrada.estado}`;
                 document.getElementById('estadoRedTxt').style.color = escuelaEncontrada.color;
                 document.getElementById('velActualTxt').innerText = escuelaEncontrada.velActual;
-                
-                // Actualizar Batería
                 document.getElementById('bateriaTxt').innerText = escuelaEncontrada.bateria + '%';
                 document.getElementById('bateriaTxt').style.color = escuelaEncontrada.color;
                 document.getElementById('bateriaBarra').style.width = escuelaEncontrada.bateria + '%';
                 document.getElementById('bateriaBarra').style.background = escuelaEncontrada.color;
 
-                // Actualizar Gráfica
                 miGraficaVelocidad.data.datasets[0].data = escuelaEncontrada.velocidad;
-                // Cambiar color de gráfica a rojo si está crítica
                 miGraficaVelocidad.data.datasets[0].borderColor = (escuelaEncontrada.bateria <= 20) ? '#ef4444' : '#1d4ed8';
                 miGraficaVelocidad.data.datasets[0].backgroundColor = (escuelaEncontrada.bateria <= 20) ? 'rgba(239, 68, 68, 0.1)' : 'rgba(29, 78, 216, 0.1)';
                 miGraficaVelocidad.update();
             } else if (query.length > 3) {
-                // Si escribe algo que no existe
                 resultadosDiv.style.display = 'none';
             }
         }
 
-        // Función extra: ir de la alerta al buscador directamente
         function verEscuelaDesdeAlerta(termino) {
             document.getElementById('inputBuscador').value = termino;
             showScreen('search', document.getElementById('navBuscarBtn'));
             ejecutarBusqueda();
         }
 
-        // 5. DATOS DEL DASHBOARD PRINCIPAL
         async function obtenerDatosDeAPI() {
-            try {
-                // Aquí irá el fetch a Cloud Run después
-                simularDatos(); 
-            } catch (error) { simularDatos(); }
+            try { simularDatos(); } catch (error) { simularDatos(); }
         }
 
         function simularDatos() {
