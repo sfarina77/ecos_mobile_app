@@ -14,8 +14,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .catch(err => console.error('Error al registrar el Service Worker', err));
+                navigator.serviceWorker.register('sw.js').catch(err => console.error('Error SW', err));
             });
         }
     </script>
@@ -40,35 +39,30 @@
             max-width: 500px; margin: 0 auto; position: relative; background: var(--bg);
         }
 
-        /* Ocultamos el header inicialmente */
         header {
             padding: 20px; padding-top: 40px; background: var(--card);
             border-bottom: 1px solid #e2e8f0; display: none;
             justify-content: space-between; align-items: center;
         }
-        header h1 { margin: 0; font-size: 1.5rem; color: var(--primary); }
 
         .content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
-        
         .screen { display: none; }
         .screen.active { display: block; animation: fadeIn 0.3s ease; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- Estilos del Login --- */
         .login-container { display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 20px; }
         .login-input { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 1rem; background: var(--card); outline: none; }
         .login-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1); }
         .btn-primary { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; }
         .btn-primary:active { transform: scale(0.98); }
 
-        .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); transition: 0.3s; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .stat-card { text-align: center; }
         .stat-value { font-size: 1.8rem; font-weight: 700; display: block; }
         .stat-label { font-size: 0.8rem; color: var(--secondary); }
 
-        /* Ocultamos la barra inferior inicialmente */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: 80px;
             background: var(--nav-bg); border-top: 1px solid #e2e8f0;
@@ -93,28 +87,24 @@
         
         <header id="main-header">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="https://dashboard.ecos-app.com/_next/image?url=%2Fbrand%2Fecos-logo-256.png&w=256&q=75" alt="Logo ECOS" style="height: 40px; width: 40px; border-radius: 6px;">
+                <img src="https://dashboard.ecos-app.com/_next/image?url=%2Fbrand%2Fecos-logo-256.png&w=256&q=75" alt="Logo ECOS" style="height: 30px; width: 30px; border-radius: 6px;">
                 <h1 style="font-size: 1.2rem;">ECOS <span style="font-weight:400; color:var(--secondary)">App</span></h1>
             </div>
             <i class="fa-solid fa-circle-user" style="font-size: 1.5rem; color: var(--secondary)"></i>
         </header>
-        
+
         <div class="content">
             
             <div id="login" class="screen active">
                 <div class="login-container">
                     <div style="text-align: center; margin-bottom: 40px;">
-                        
                         <img src="https://dashboard.ecos-app.com/_next/image?url=%2Fbrand%2Fecos-logo-256.png&w=256&q=75" alt="Logo ECOS" style="width: 100px; height: 100px; margin: 0 auto 15px; display: block; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-                        
                         <h1 style="color: var(--primary); font-size: 2rem; margin-bottom: 5px;">ECOS Mobile</h1>
                         <p style="color: var(--secondary);">Monitoreo de Red Escolar</p>
                     </div>
-                    
                     <input type="text" id="userInput" class="login-input" placeholder="Usuario" autocomplete="off">
                     <input type="password" id="passInput" class="login-input" placeholder="Contraseña">
                     <button class="btn-primary" onclick="iniciarSesion()">Ingresar</button>
-                    
                     <p id="errorMsg" style="color: var(--danger); text-align: center; margin-top: 15px; display: none; font-size: 0.9rem;">Credenciales incorrectas. Intenta de nuevo.</p>
                 </div>
             </div>
@@ -144,25 +134,40 @@
 
             <div id="alerts" class="screen">
                 <h2 style="font-size: 1.2rem; margin-bottom: 20px;">Alertas Críticas</h2>
-                <div class="card" style="border-left: 4px solid var(--danger);">
-                    <strong>C.E. Albert Camus</strong><p style="font-size: 0.8rem; color: var(--secondary); margin: 5px 0;">Pérdida de conexión hace 14 min.</p><span style="font-size: 0.7rem; background: #fee2e2; color: var(--danger); padding: 2px 8px; border-radius: 10px;">Crítico</span>
-                </div>
-                <div class="card" style="border-left: 4px solid var(--warning);">
-                    <strong>Instituto Nacional San Salvador</strong><p style="font-size: 0.8rem; color: var(--secondary); margin: 5px 0;">Batería UPS por debajo del 20%.</p><span style="font-size: 0.7rem; background: #fef3c7; color: var(--warning); padding: 2px 8px; border-radius: 10px;">Atención</span>
+                <div class="card" style="border-left: 4px solid var(--danger); cursor: pointer;" onclick="verEscuelaDesdeAlerta('nacional')">
+                    <strong>Instituto Nacional San Salvador</strong>
+                    <p style="font-size: 0.8rem; color: var(--secondary); margin: 5px 0;">Batería UPS por debajo del 20%. Velocidad crítica.</p>
+                    <span style="font-size: 0.7rem; background: #fee2e2; color: var(--danger); padding: 2px 8px; border-radius: 10px;">Crítico</span>
                 </div>
             </div>
 
             <div id="search" class="screen">
-                <div class="search-bar"><i class="fa-solid fa-magnifying-glass" style="color: var(--secondary)"></i><input type="text" placeholder="Buscar escuela..." value="Albert Camus"></div>
-                <h2 style="font-size: 1.1rem; color: var(--primary);">C.E. Albert Camus</h2>
-                <div class="card">
-                    <div class="school-badge"><span>Estado de Red</span><span style="color: var(--success); font-weight: 600;"><span class="status-dot" style="background: var(--success);"></span>Estable</span></div>
-                    <div style="height: 150px; margin-top: 15px;"><canvas id="speedChart"></canvas></div>
-                    <p style="text-align: center; font-size: 0.8rem; color: var(--secondary);">Velocidad actual: 45 Mbps</p>
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass" style="color: var(--secondary)"></i>
+                    <input type="text" id="inputBuscador" placeholder="Ej: Albert o Nacional..." onkeyup="ejecutarBusqueda()">
                 </div>
-                <div class="card">
-                    <div class="school-badge" style="border:none"><span>Respaldo de Batería</span><span style="color: var(--success); font-weight: 600;">89%</span></div>
-                    <div style="background: #e2e8f0; height: 12px; border-radius: 6px;"><div style="background: var(--success); width: 89%; height: 100%; border-radius: 6px;"></div></div>
+
+                <div id="resultadosBusqueda">
+                    <h2 id="nombreEscuelaTit" style="font-size: 1.1rem; color: var(--primary);">C.E. Albert Camus</h2>
+                    
+                    <div class="card">
+                        <div class="school-badge">
+                            <span>Estado de Red</span>
+                            <span id="estadoRedTxt" style="color: var(--success); font-weight: 600;"><span class="status-dot" id="estadoRedDot" style="background: var(--success);"></span>Estable</span>
+                        </div>
+                        <div style="height: 150px; margin-top: 15px;"><canvas id="speedChart"></canvas></div>
+                        <p style="text-align: center; font-size: 0.8rem; color: var(--secondary);">Velocidad actual: <span id="velActualTxt">45</span> Mbps</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="school-badge" style="border:none">
+                            <span>Respaldo de Batería</span>
+                            <span id="bateriaTxt" style="color: var(--success); font-weight: 600;">89%</span>
+                        </div>
+                        <div style="background: #e2e8f0; height: 12px; border-radius: 6px;">
+                            <div id="bateriaBarra" style="background: var(--success); width: 89%; height: 100%; border-radius: 6px; transition: 0.5s ease-in-out;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -171,100 +176,140 @@
         <nav id="main-nav" class="bottom-nav">
             <div class="nav-item active" onclick="showScreen('home', this)"><i class="fa-solid fa-chart-pie"></i><span>Resumen</span></div>
             <div class="nav-item" onclick="showScreen('alerts', this)"><i class="fa-solid fa-triangle-exclamation"></i><span>Alertas</span></div>
-            <div class="nav-item" onclick="showScreen('search', this)"><i class="fa-solid fa-school"></i><span>Escuelas</span></div>
+            <div class="nav-item" id="navBuscarBtn" onclick="showScreen('search', this)"><i class="fa-solid fa-school"></i><span>Escuelas</span></div>
         </nav>
     </div>
 
     <script>
-        // ==========================================
-        // 1. SISTEMA DE LOGIN Y SEGURIDAD
-        // ==========================================
-        function iniciarSesion() {
-            const user = document.getElementById('userInput').value;
-            const pass = document.getElementById('passInput').value;
-            const errorMsg = document.getElementById('errorMsg');
+        // Variables globales para las gráficas
+        let miGraficaPrincipal;
+        let miGraficaVelocidad;
 
-            // --- Credenciales de prueba temporal ---
+        // Base de datos simulada para el buscador
+        const baseDeDatos = {
+            "albert": {
+                nombre: "C.E. Albert Camus", estado: "Estable", color: "var(--success)", 
+                velocidad: [40, 42, 38, 45, 44, 45], velActual: 45, bateria: 89
+            },
+            "nacional": {
+                nombre: "Instituto Nacional San Salvador", estado: "Alerta Crítica", color: "var(--danger)", 
+                velocidad: [25, 20, 15, 12, 10, 12], velActual: 12, bateria: 20
+            }
+        };
+
+        // 1. SISTEMA DE LOGIN
+        function iniciarSesion() {
+            const user = document.getElementById('userInput').value.toLowerCase();
+            const pass = document.getElementById('passInput').value;
+            
             if (user === 'admin' && pass === '1234') {
-                errorMsg.style.display = 'none';
+                document.getElementById('errorMsg').style.display = 'none';
                 document.getElementById('login').classList.remove('active');
                 
                 document.getElementById('main-header').style.display = 'flex';
                 document.getElementById('main-nav').style.display = 'flex';
                 document.getElementById('home').classList.add('active');
                 
+                inicializarGraficas();
                 obtenerDatosDeAPI();
             } else {
-                errorMsg.style.display = 'block';
+                document.getElementById('errorMsg').style.display = 'block';
             }
         }
 
-        // ==========================================
-        // 2. LÓGICA DE INTERFAZ (Cambiar pantallas)
-        // ==========================================
+        // 2. CAMBIAR PANTALLAS
         function showScreen(screenId, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-            element.classList.add('active');
+            
+            if(element) element.classList.add('active');
         }
 
-        // ==========================================
-        // 3. INICIALIZACIÓN DE GRÁFICAS (Chart.js)
-        // ==========================================
-        const ctxMain = document.getElementById('mainChart').getContext('2d');
-        const miGraficaPrincipal = new Chart(ctxMain, {
-            type: 'doughnut',
-            data: {
-                labels: ['Conectadas', 'Caídas', 'Alertas'],
-                datasets: [{
-                    data: [0, 0, 0],
-                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
-                    borderWidth: 0,
-                    cutout: '80%'
-                }]
-            },
-            options: { plugins: { legend: { display: true, position: 'bottom' } }, maintainAspectRatio: false }
-        });
+        // 3. INICIALIZAR GRÁFICAS (Se llama después del login)
+        function inicializarGraficas() {
+            if(!miGraficaPrincipal) {
+                const ctxMain = document.getElementById('mainChart').getContext('2d');
+                miGraficaPrincipal = new Chart(ctxMain, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Conectadas', 'Caídas', 'Alertas'],
+                        datasets: [{ data: [0, 0, 0], backgroundColor: ['#10b981', '#ef4444', '#f59e0b'], borderWidth: 0, cutout: '80%' }]
+                    },
+                    options: { plugins: { legend: { display: true, position: 'bottom' } }, maintainAspectRatio: false }
+                });
+            }
 
-        const ctxSpeed = document.getElementById('speedChart').getContext('2d');
-        new Chart(ctxSpeed, {
-            type: 'line',
-            data: {
-                labels: ['10am', '11am', '12pm', '1pm', '2pm', '3pm'],
-                datasets: [{ label: 'Mbps', data: [40, 42, 38, 45, 44, 45], borderColor: '#1d4ed8', backgroundColor: 'rgba(29, 78, 216, 0.1)', fill: true, tension: 0.4 }]
-            },
-            options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } }, maintainAspectRatio: false }
-        });
-
-        // ==========================================
-        // 4. CONEXIÓN A TU API EN CLOUD RUN
-        // ==========================================
-        async function obtenerDatosDeAPI() {
-            try {
-                const urlAPI = 'https://tu-api-en-cloudrun.run.app/api/resumen'; 
-                const respuesta = await fetch(urlAPI, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
-
-                if (respuesta.ok) {
-                    const datos = await respuesta.json();
-                    actualizarInterfaz(datos);
-                } else {
-                    simularDatos(); 
-                }
-            } catch (error) {
-                simularDatos(); 
+            if(!miGraficaVelocidad) {
+                const ctxSpeed = document.getElementById('speedChart').getContext('2d');
+                miGraficaVelocidad = new Chart(ctxSpeed, {
+                    type: 'line',
+                    data: {
+                        labels: ['10am', '11am', '12pm', '1pm', '2pm', '3pm'], // 6 horas históricas
+                        datasets: [{ label: 'Mbps', data: baseDeDatos['albert'].velocidad, borderColor: '#1d4ed8', backgroundColor: 'rgba(29, 78, 216, 0.1)', fill: true, tension: 0.4 }]
+                    },
+                    options: { plugins: { legend: { display: false } }, scales: { y: { display: false, min: 0 }, x: { grid: { display: false } } }, maintainAspectRatio: false }
+                });
             }
         }
 
-        function actualizarInterfaz(datos) {
-            document.querySelector('.stat-value[style*="color: var(--success)"]').textContent = datos.conectadas;
-            document.querySelector('.stat-value[style*="color: var(--danger)"]').textContent = datos.desconectadas;
-            miGraficaPrincipal.data.datasets[0].data = [datos.conectadas, datos.desconectadas, datos.alertas];
-            miGraficaPrincipal.update();
+        // 4. LÓGICA DEL BUSCADOR EN TIEMPO REAL
+        function ejecutarBusqueda() {
+            const query = document.getElementById('inputBuscador').value.toLowerCase();
+            const resultadosDiv = document.getElementById('resultadosBusqueda');
+            
+            // Buscar coincidencias
+            let escuelaEncontrada = null;
+            if(query.includes('albert')) escuelaEncontrada = baseDeDatos['albert'];
+            if(query.includes('nacional')) escuelaEncontrada = baseDeDatos['nacional'];
+
+            if(escuelaEncontrada) {
+                resultadosDiv.style.display = 'block';
+                
+                // Actualizar Textos
+                document.getElementById('nombreEscuelaTit').innerText = escuelaEncontrada.nombre;
+                document.getElementById('estadoRedTxt').innerHTML = `<span class="status-dot" style="background: ${escuelaEncontrada.color};"></span>${escuelaEncontrada.estado}`;
+                document.getElementById('estadoRedTxt').style.color = escuelaEncontrada.color;
+                document.getElementById('velActualTxt').innerText = escuelaEncontrada.velActual;
+                
+                // Actualizar Batería
+                document.getElementById('bateriaTxt').innerText = escuelaEncontrada.bateria + '%';
+                document.getElementById('bateriaTxt').style.color = escuelaEncontrada.color;
+                document.getElementById('bateriaBarra').style.width = escuelaEncontrada.bateria + '%';
+                document.getElementById('bateriaBarra').style.background = escuelaEncontrada.color;
+
+                // Actualizar Gráfica
+                miGraficaVelocidad.data.datasets[0].data = escuelaEncontrada.velocidad;
+                // Cambiar color de gráfica a rojo si está crítica
+                miGraficaVelocidad.data.datasets[0].borderColor = (escuelaEncontrada.bateria <= 20) ? '#ef4444' : '#1d4ed8';
+                miGraficaVelocidad.data.datasets[0].backgroundColor = (escuelaEncontrada.bateria <= 20) ? 'rgba(239, 68, 68, 0.1)' : 'rgba(29, 78, 216, 0.1)';
+                miGraficaVelocidad.update();
+            } else if (query.length > 3) {
+                // Si escribe algo que no existe
+                resultadosDiv.style.display = 'none';
+            }
+        }
+
+        // Función extra: ir de la alerta al buscador directamente
+        function verEscuelaDesdeAlerta(termino) {
+            document.getElementById('inputBuscador').value = termino;
+            showScreen('search', document.getElementById('navBuscarBtn'));
+            ejecutarBusqueda();
+        }
+
+        // 5. DATOS DEL DASHBOARD PRINCIPAL
+        async function obtenerDatosDeAPI() {
+            try {
+                // Aquí irá el fetch a Cloud Run después
+                simularDatos(); 
+            } catch (error) { simularDatos(); }
         }
 
         function simularDatos() {
-            actualizarInterfaz({ conectadas: 5120, desconectadas: 124, alertas: 450 });
+            document.querySelector('.stat-value[style*="color: var(--success)"]').textContent = 5120;
+            document.querySelector('.stat-value[style*="color: var(--danger)"]').textContent = 124;
+            miGraficaPrincipal.data.datasets[0].data = [5120, 124, 450];
+            miGraficaPrincipal.update();
         }
     </script>
 </body>
