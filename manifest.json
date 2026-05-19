@@ -1,0 +1,16 @@
+{
+  "short_name": "ECOS Mobile",
+  "name": "ECOS Monitoreo Escolar",
+  "icons": [
+    {
+      "src": "https://dashboard.ecos-app.com/_next/image?url=%2Fbrand%2Fecos-logo-256.png&w=256&q=75",
+      "type": "image/png",
+      "sizes": "256x256"
+    }
+  ],
+  "start_url": "/index.html",
+  "background_color": "#0c1015",
+  "theme_color": "#1d4ed8",
+  "display": "standalone",
+  "orientation": "portrait"
+}

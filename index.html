@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<link rel="manifest" href="manifest.json">
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registrado con éxito', reg))
+                    .catch(err => console.error('Error al registrar el Service Worker', err));
+            });
+        }
+    </script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ECOS App - Preview</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --nav-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #1e293b;
+            overflow-x: hidden;
+            /* Evita el rebote del navegador en iOS */
+            overscroll-behavior-y: none;
+        }
+
+        /* --- App Shell --- */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 500px; /* Limitador para que en PC no se vea gigante */
+            margin: 0 auto;
+            position: relative;
+            background: var(--bg);
+        }
+
+        header {
+            padding: 20px;
+            padding-top: 40px;
+            background: var(--card);
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        /* --- Screens Management --- */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            padding-bottom: 100px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- UI Components --- */
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-card {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        /* --- Barra de Navegación --- */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: var(--nav-bg);
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 15px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .nav-item i {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        /* --- Buscador --- */
+        .search-bar {
+            background: #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            outline: none;
+            margin-left: 10px;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        /* --- Badge de Escuela --- */
+        .school-badge {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <header>
+            <h1>ECOS <span style="font-weight:400; color:var(--secondary)">App</span></h1>
+            <i class="fa-solid fa-circle-user" style="font-size: 1.5rem; color: var(--secondary)"></i>
+        </header>
+
+        <div class="content">
+            
+            <div id="home" class="screen active">
+                <h2 style="font-size: 1.2rem; margin-bottom: 20px;">Resumen Nacional</h2>
+                
+                <div class="card" style="text-align: center;">
+                    <span class="stat-label">Conectividad Total</span>
+                    <div style="height: 200px; width: 100%; margin: 10px 0;">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="card stat-card">
+                        <span class="stat-value" style="color: var(--success);">5.1k</span>
+                        <span class="stat-label">Conectadas</span>
+                    </div>
+                    <div class="card stat-card">
+                        <span class="stat-value" style="color: var(--danger);">124</span>
+                        <span class="stat-label">Caídas</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="stat-label">Carga de Batería (Promedio)</span>
+                    <div style="background: #e2e8f0; height: 8px; border-radius: 4px; margin-top: 10px;">
+                        <div style="background: var(--success); width: 84%; height: 100%; border-radius: 4px;"></div>
+                    </div>
+                    <span style="font-size: 0.7rem; margin-top: 5px; display: block; text-align: right;">84% Capacidad</span>
+                </div>
+            </div>
+
+            <div id="alerts" class="screen">
+                <h2 style="font-size: 1.2rem; margin-bottom: 20px;">Alertas Críticas</h2>
+                <div class="card" style="border-left: 4px solid var(--danger);">
+                    <strong>C.E. Albert Camus</strong>
+                    <p style="font-size: 0.8rem; color: var(--secondary); margin: 5px 0;">Pérdida de conexión hace 14 min.</p>
+                    <span style="font-size: 0.7rem; background: #fee2e2; color: var(--danger); padding: 2px 8px; border-radius: 10px;">Crítico</span>
+                </div>
+                <div class="card" style="border-left: 4px solid var(--warning);">
+                    <strong>Instituto Nacional San Salvador</strong>
+                    <p style="font-size: 0.8rem; color: var(--secondary); margin: 5px 0;">Batería UPS por debajo del 20%.</p>
+                    <span style="font-size: 0.7rem; background: #fef3c7; color: var(--warning); padding: 2px 8px; border-radius: 10px;">Atención</span>
+                </div>
+            </div>
+
+            <div id="search" class="screen">
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass" style="color: var(--secondary)"></i>
+                    <input type="text" placeholder="Buscar escuela..." value="Albert Camus">
+                </div>
+
+                <h2 style="font-size: 1.1rem; color: var(--primary);">C.E. Albert Camus</h2>
+                
+                <div class="card">
+                    <div class="school-badge">
+                        <span>Estado de Red</span>
+                        <span style="color: var(--success); font-weight: 600;"><span class="status-dot" style="background: var(--success);"></span>Estable</span>
+                    </div>
+                    <div style="height: 150px; margin-top: 15px;">
+                        <canvas id="speedChart"></canvas>
+                    </div>
+                    <p style="text-align: center; font-size: 0.8rem; color: var(--secondary);">Velocidad actual: 45 Mbps</p>
+                </div>
+
+                <div class="card">
+                    <div class="school-badge" style="border:none">
+                        <span>Respaldo de Batería</span>
+                        <span style="color: var(--success); font-weight: 600;">89%</span>
+                    </div>
+                    <div style="background: #e2e8f0; height: 12px; border-radius: 6px;">
+                        <div style="background: var(--success); width: 89%; height: 100%; border-radius: 6px;"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="showScreen('home', this)">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Resumen</span>
+            </div>
+            <div class="nav-item" onclick="showScreen('alerts', this)">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Alertas</span>
+            </div>
+            <div class="nav-item" onclick="showScreen('search', this)">
+                <i class="fa-solid fa-school"></i>
+                <span>Escuelas</span>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // Función para cambiar de pantalla (simula una App)
+        function showScreen(screenId, element) {
+            // Ocultar todas las pantallas
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // Quitar estado activo de la navegación
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            // Mostrar la seleccionada
+            document.getElementById(screenId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        // --- Gráfica Dashboard Principal (Donut) ---
+        const ctxMain = document.getElementById('mainChart').getContext('2d');
+        new Chart(ctxMain, {
+            type: 'doughnut',
+            data: {
+                labels: ['Conectadas', 'Caídas', 'Alertas'],
+                datasets: [{
+                    data: [5100, 124, 450],
+                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                    borderWidth: 0,
+                    cutout: '80%'
+                }]
+            },
+            options: {
+                plugins: { legend: { display: true, position: 'bottom' } },
+                maintainAspectRatio: false
+            }
+        });
+
+        // --- Gráfica Velocidad Escuela (Línea) ---
+        const ctxSpeed = document.getElementById('speedChart').getContext('2d');
+        new Chart(ctxSpeed, {
+            type: 'line',
+            data: {
+                labels: ['10am', '11am', '12pm', '1pm', '2pm', '3pm'],
+                datasets: [{
+                    label: 'Mbps',
+                    data: [40, 42, 38, 45, 44, 45],
+                    borderColor: '#1d4ed8',
+                    backgroundColor: 'rgba(29, 78, 216, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { display: false }, x: { grid: { display: false } } },
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+</body>
+</html>
