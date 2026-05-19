@@ -42,8 +42,10 @@
             overflow-x: hidden; overscroll-behavior-y: none;
         }
 
+        /* --- CORRECCIÓN 1: app-container usa 100dvh --- */
         .app-container {
-            display: flex; flex-direction: column; height: 100vh;
+            display: flex; flex-direction: column; 
+            height: 100dvh; /* dvh soluciona el problema en iOS/Android */
             max-width: 500px; margin: 0 auto; position: relative; background: var(--bg);
         }
 
@@ -67,11 +69,15 @@
         .stat-value { font-size: 1.8rem; font-weight: 700; display: block; }
         .stat-label { font-size: 0.8rem; color: var(--secondary); }
 
+        /* --- CORRECCIÓN 2: bottom-nav usa position: fixed y safe-area --- */
         .bottom-nav {
-            position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+            position: fixed; /* Fija la barra al final de la pantalla */
+            bottom: 0; left: 0; right: 0; height: 80px;
             background: var(--nav-bg); border-top: 1px solid #e2e8f0;
             display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: 15px; z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom, 15px); /* Respeta el margen inferior de iOS */
+            z-index: 1000;
+            max-width: 500px; margin: 0 auto; /* Mantiene la barra centrada si se abre en PC */
         }
 
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--secondary); text-decoration: none; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
