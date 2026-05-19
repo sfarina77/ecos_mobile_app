@@ -6,9 +6,8 @@
     <title>ECOS App - Mobile</title>
     
     <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
@@ -21,29 +20,42 @@
 
     <style>
         :root {
-            --primary: #1d4ed8; --secondary: #64748b;
-            --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-            --bg: #f8fafc; --card: #ffffff; --nav-bg: #ffffff;
+            /* Paleta extraída de tu HTML */
+            --ecos-navy: #0a1628;
+            --ecos-navy-light: #0f1d32;
+            --ecos-border: #1e3a5f;
+            --ecos-blue-light: #93c5fd;
+            --ecos-text-muted: #94a3b8;
+            --ecos-bg: #f8fafc;
+            --ecos-card: #ffffff;
+            --success: #16a34a;
+            --danger: #b91c1c;
+            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0; font-family: 'Inter', sans-serif;
-            background-color: var(--bg); color: #1e293b;
+            background-color: var(--ecos-bg); color: #1e293b;
             overflow-x: hidden; overscroll-behavior-y: none;
         }
 
         .app-container {
             display: flex; flex-direction: column; height: 100dvh;
-            max-width: 500px; margin: 0 auto; position: relative; background: var(--bg);
+            max-width: 500px; margin: 0 auto; position: relative; background: var(--ecos-bg);
         }
 
+        /* --- HEADER ESTILO ECOS --- */
         header {
-            padding: 20px; padding-top: 40px; background: var(--card);
-            border-bottom: 1px solid #e2e8f0; display: none;
+            padding: 15px 20px; padding-top: 45px; background: var(--ecos-navy);
+            border-bottom: 1px solid var(--ecos-border); display: none;
             justify-content: space-between; align-items: center;
+            color: white;
         }
+        .header-title-box { display: flex; flex-direction: column; }
+        .header-title { font-weight: 700; font-size: 1rem; letter-spacing: 0.05em; line-height: 1.2; text-transform: uppercase; }
+        .header-subtitle { color: var(--ecos-blue-light); font-size: 0.7rem; line-height: 1.2; }
 
         .content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
         .screen { display: none; }
@@ -51,37 +63,54 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .login-container { display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 20px; }
-        .login-input { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 1rem; background: var(--card); outline: none; }
-        .login-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1); }
-        
-        /* --- ESTILOS DEL BOTÓN DE CARGA --- */
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        /* --- LOGIN --- */
+        .login-container { display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 20px; background: var(--ecos-bg); }
+        .login-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; background: white; outline: none; }
+        .login-input:focus { border-color: var(--ecos-navy); box-shadow: 0 0 0 2px rgba(10, 22, 40, 0.1); }
+        .btn-primary { background: var(--ecos-navy); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; display: flex; justify-content: center; gap: 8px; align-items: center; }
         .btn-primary:active:not(:disabled) { transform: scale(0.98); }
         .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
 
-        .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); transition: 0.3s; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .stat-card { text-align: center; }
-        .stat-value { font-size: 1.8rem; font-weight: 700; display: block; }
-        .stat-label { font-size: 0.8rem; color: var(--secondary); }
+        /* --- TARJETAS ESTILO ECOS --- */
+        .section-title { font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 4px; }
+        .section-subtitle { font-size: 0.8rem; color: #6b7280; margin-bottom: 15px; margin-top: 0;}
+        
+        .card { background: var(--ecos-card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        
+        /* Layout de stats arriba */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .stat-card { display: flex; flex-direction: column; gap: 5px; }
+        .stat-icon-box { display: flex; align-items: center; gap: 8px; }
+        .stat-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; justify-content: center; align-items: center; }
+        .stat-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; }
 
+        /* --- BARRA DE BÚSQUEDA Y RESULTADOS --- */
+        .search-box { position: relative; margin-bottom: 20px; }
+        .search-input-wrapper { background: white; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; align-items: center; padding: 10px 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .search-input-wrapper input { border: none; outline: none; width: 100%; font-size: 0.95rem; margin-left: 10px; color: #1e293b; }
+        
+        /* Dropdown de resultados */
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 5px; display: none; z-index: 50; overflow: hidden; }
+        .search-item { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .search-item:last-child { border-bottom: none; }
+        .search-item:active { background: #f8fafc; }
+        .search-item-name { font-size: 0.9rem; font-weight: 500; color: #1e293b; }
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+        .status-badge.ok { background: #16a34a15; color: var(--success); }
+        .status-badge.fail { background: #b91c1c15; color: var(--danger); }
+
+        /* --- NAV INFERIOR ESTILO ECOS --- */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 80px;
-            background: var(--nav-bg); border-top: 1px solid #e2e8f0;
+            position: fixed; bottom: 0; left: 0; right: 0; height: 75px;
+            background: var(--ecos-navy); border-top: 1px solid var(--ecos-border);
             display: none; justify-content: space-around; align-items: center;
-            padding-bottom: env(safe-area-inset-bottom, 15px); z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom, 10px); z-index: 1000;
             max-width: 500px; margin: 0 auto;
         }
-
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--secondary); text-decoration: none; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
-        .nav-item i { font-size: 1.4rem; margin-bottom: 4px; }
-        .nav-item.active { color: var(--primary); }
-
-        .search-bar { background: #e2e8f0; border-radius: 12px; padding: 12px; display: flex; align-items: center; margin-bottom: 20px; }
-        .search-bar input { background: transparent; border: none; outline: none; margin-left: 10px; width: 100%; font-size: 1rem; }
-        .school-badge { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--ecos-text-muted); text-decoration: none; font-size: 0.65rem; font-weight: 500; cursor: pointer; transition: 0.2s; gap: 4px; }
+        .nav-item i { font-size: 1.2rem; }
+        .nav-item.active { color: white; }
     </style>
 </head>
 <body>
@@ -89,91 +118,122 @@
     <div class="app-container">
         
         <header id="main-header">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="https://dashboard.ecos-app.com/_next/image?url=%2Fbrand%2Fecos-logo-256.png&w=256&q=75" alt="Logo ECOS" style="height: 30px; width: 30px; border-radius: 6px;">
-                <h1 style="font-size: 1.2rem;">ECOS <span style="font-weight:400; color:var(--secondary)">App</span></h1>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="https://dashboard.ecos-app.com/_next/image?url=%2Fbrand%2Fecos-icon-128.png&w=96&q=75" alt="ECOS" style="width: 32px; height: 32px; border-radius: 6px;">
+                <div class="header-title-box">
+                    <span class="header-title">ECOS</span>
+                    <span class="header-subtitle">Ministerio de Educación</span>
+                </div>
             </div>
-            <i class="fa-solid fa-circle-user" style="font-size: 1.5rem; color: var(--secondary)"></i>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-rotate-right" style="color: var(--ecos-text-muted); font-size: 0.9rem;" onclick="obtenerDatosDeAPI()"></i>
+                <i class="fa-regular fa-circle-user" style="color: var(--ecos-text-muted); font-size: 1.2rem;"></i>
+            </div>
         </header>
 
         <div class="content">
             
             <div id="login" class="screen active">
                 <div class="login-container">
-                    <div style="text-align: center; margin-bottom: 40px;">
-                        <img src="https://dashboard.ecos-app.com/_next/image?url=%2Fbrand%2Fecos-logo-256.png&w=256&q=75" alt="Logo ECOS" style="width: 100px; height: 100px; margin: 0 auto 15px; display: block; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-                        <h1 style="color: var(--primary); font-size: 2rem; margin-bottom: 5px;">ECOS Mobile</h1>
-                        <p style="color: var(--secondary);">Monitoreo de Red Escolar</p>
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <img src="https://dashboard.ecos-app.com/_next/image?url=%2Fbrand%2Fecos-logo-256.png&w=256&q=75" alt="Logo ECOS" style="width: 90px; height: 90px; margin: 0 auto 15px; display: block; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+                        <h1 style="color: var(--ecos-navy); font-size: 1.8rem; margin-bottom: 5px; font-weight: 700;">ECOS</h1>
+                        <p style="color: #64748b; font-size: 0.9rem;">Monitoreo de Red Escolar</p>
                     </div>
                     
                     <input type="text" id="userInput" class="login-input" placeholder="Usuario (Ej: admin)" autocomplete="off">
                     <input type="password" id="passInput" class="login-input" placeholder="Contraseña (Ej: 1234)">
                     
                     <button id="btnIngresar" class="btn-primary" onclick="iniciarSesion()">
-                        <span id="btnTexto">Ingresar</span>
+                        <span id="btnTexto">Ingresar al Sistema</span>
                         <i id="btnSpinner" class="fa-solid fa-circle-notch fa-spin" style="display: none;"></i>
                     </button>
                     
-                    <p id="errorMsg" style="color: var(--danger); text-align: center; margin-top: 15px; display: none; font-size: 0.9rem;">Credenciales incorrectas. Intenta de nuevo.</p>
+                    <p id="errorMsg" style="color: var(--danger); text-align: center; margin-top: 15px; display: none; font-size: 0.85rem;">Credenciales incorrectas.</p>
                 </div>
             </div>
 
             <div id="home" class="screen">
-                <h2 style="font-size: 1.2rem; margin-bottom: 20px;">Resumen Nacional</h2>
-                <div class="card" style="text-align: center;">
-                    <span class="stat-label">Conectividad Total</span>
-                    <div style="height: 200px; width: 100%; margin: 10px 0;"><canvas id="mainChart"></canvas></div>
-                </div>
+                <h2 class="section-title">Vista Global</h2>
+                <p class="section-subtitle">Estado de infraestructura a nivel nacional</p>
+                
                 <div class="stat-grid">
                     <div class="card stat-card">
-                        <span class="stat-value" style="color: var(--success);">0</span><span class="stat-label">Conectadas</span>
+                        <div class="stat-icon-box">
+                            <div class="stat-icon" style="background: #16a34a15;"><i class="fa-solid fa-wifi" style="color: var(--success); font-size: 0.8rem;"></i></div>
+                            <span class="stat-label">Sondas Activas</span>
+                        </div>
+                        <span class="stat-value" style="color: var(--success);" id="dashConectadas">0</span>
                     </div>
                     <div class="card stat-card">
-                        <span class="stat-value" style="color: var(--danger);">0</span><span class="stat-label">Caídas</span>
+                        <div class="stat-icon-box">
+                            <div class="stat-icon" style="background: #b91c1c15;"><i class="fa-solid fa-link-slash" style="color: var(--danger); font-size: 0.8rem;"></i></div>
+                            <span class="stat-label">Sondas Caídas</span>
+                        </div>
+                        <span class="stat-value" style="color: var(--danger);" id="dashCaidas">0</span>
                     </div>
                 </div>
-                <div class="card">
-                    <span class="stat-label">Carga de Batería (Promedio)</span>
-                    <div style="background: #e2e8f0; height: 8px; border-radius: 4px; margin-top: 10px;">
-                        <div style="background: var(--success); width: 84%; height: 100%; border-radius: 4px;"></div>
-                    </div>
-                    <span style="font-size: 0.7rem; margin-top: 5px; display: block; text-align: right;">84% Capacidad</span>
-                </div>
-            </div>
 
-            <div id="alerts" class="screen">
-                <h2 style="font-size: 1.2rem; margin-bottom: 20px;">Alertas Críticas</h2>
-                <div class="card" style="border-left: 4px solid var(--danger); cursor: pointer;" onclick="verEscuelaDesdeAlerta('nacional')">
-                    <strong>Instituto Nacional San Salvador</strong>
-                    <p style="font-size: 0.8rem; color: var(--secondary); margin: 5px 0;">Batería UPS por debajo del 20%. Velocidad crítica.</p>
-                    <span style="font-size: 0.7rem; background: #fee2e2; color: var(--danger); padding: 2px 8px; border-radius: 10px;">Crítico</span>
+                <div class="card" style="text-align: center; padding-bottom: 20px;">
+                    <span class="stat-label" style="display: block; margin-bottom: 10px;">Infraestructura de Red</span>
+                    <div style="height: 180px; width: 100%; position: relative;">
+                        <canvas id="mainChart"></canvas>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center;">
+                            <span style="font-size: 1.5rem; font-weight: 700; color: #111827;" id="dashTotal">0</span>
+                            <span style="font-size: 0.6rem; color: #64748b; text-transform: uppercase;">Total</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div id="search" class="screen">
-                <div class="search-bar">
-                    <i class="fa-solid fa-magnifying-glass" style="color: var(--secondary)"></i>
-                    <input type="text" id="inputBuscador" placeholder="Ej: Albert o Nacional..." onkeyup="ejecutarBusqueda()">
+                <h2 class="section-title">Filtrar Sonda</h2>
+                <p class="section-subtitle">Búsqueda y estado de dispositivos</p>
+
+                <div class="search-box">
+                    <div class="search-input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8;"></i>
+                        <input type="text" id="inputBuscador" placeholder="Ej: Albert Camus..." onkeyup="mostrarSugerencias()" onfocus="mostrarSugerencias()">
+                        <i class="fa-solid fa-circle-xmark" style="color: #cbd5e1; cursor: pointer; display: none;" id="clearSearch" onclick="limpiarBusqueda()"></i>
+                    </div>
+                    
+                    <div class="search-results" id="listaResultados">
+                        </div>
                 </div>
 
-                <div id="resultadosBusqueda">
-                    <h2 id="nombreEscuelaTit" style="font-size: 1.1rem; color: var(--primary);">C.E. Albert Camus</h2>
-                    <div class="card">
-                        <div class="school-badge">
-                            <span>Estado de Red</span>
-                            <span id="estadoRedTxt" style="color: var(--success); font-weight: 600;"><span class="status-dot" id="estadoRedDot" style="background: var(--success);"></span>Estable</span>
+                <div id="infoEscuela" style="display: none;">
+                    
+                    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 id="escuelaNombre" style="margin: 0; font-size: 1.1rem; color: #111827;">C.E. Nombre</h3>
+                            <p id="escuelaID" style="margin: 2px 0 0 0; font-size: 0.75rem; color: #64748b; font-family: monospace;">ID: 0000</p>
                         </div>
-                        <div style="height: 150px; margin-top: 15px;"><canvas id="speedChart"></canvas></div>
-                        <p style="text-align: center; font-size: 0.8rem; color: var(--secondary);">Velocidad actual: <span id="velActualTxt">45</span> Mbps</p>
+                        <span id="escuelaBadge" class="status-badge ok"><i class="fa-solid fa-check"></i> Activo</span>
                     </div>
+
+                    <div class="stat-grid">
+                        <div class="card stat-card" style="margin:0;">
+                            <div class="stat-icon-box">
+                                <div class="stat-icon" style="background: #16a34a15;"><i class="fa-solid fa-shield-halved" style="color: var(--success); font-size: 0.8rem;"></i></div>
+                                <span class="stat-label">Filtro</span>
+                            </div>
+                            <span class="stat-value" style="color: #111827; font-size: 1.1rem; margin-top: 5px;">OK / Activo</span>
+                        </div>
+                        <div class="card stat-card" style="margin:0;">
+                            <div class="stat-icon-box">
+                                <div class="stat-icon" id="upsIconBg" style="background: #1e3a5f15;"><i class="fa-solid fa-battery-half" id="upsIconColor" style="color: var(--ecos-border); font-size: 0.8rem;"></i></div>
+                                <span class="stat-label">UPS</span>
+                            </div>
+                            <span class="stat-value" id="upsStatusTxt" style="color: #111827; font-size: 1.1rem; margin-top: 5px;">Conectada</span>
+                        </div>
+                    </div>
+
                     <div class="card">
-                        <div class="school-badge" style="border:none">
-                            <span>Respaldo de Batería</span>
-                            <span id="bateriaTxt" style="color: var(--success); font-weight: 600;">89%</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span class="stat-label">Velocidad Ethernet Prom.</span>
+                            <span id="velPromTxt" style="font-weight: 700; color: #1e3a5f;">194 Mbps</span>
                         </div>
-                        <div style="background: #e2e8f0; height: 12px; border-radius: 6px;">
-                            <div id="bateriaBarra" style="background: var(--success); width: 89%; height: 100%; border-radius: 6px; transition: 0.5s ease-in-out;"></div>
-                        </div>
+                        <div style="height: 120px;"><canvas id="speedChart"></canvas></div>
                     </div>
                 </div>
             </div>
@@ -181,9 +241,10 @@
         </div>
 
         <nav id="main-nav" class="bottom-nav">
-            <div class="nav-item active" onclick="showScreen('home', this)"><i class="fa-solid fa-chart-pie"></i><span>Resumen</span></div>
-            <div class="nav-item" onclick="showScreen('alerts', this)"><i class="fa-solid fa-triangle-exclamation"></i><span>Alertas</span></div>
-            <div class="nav-item" id="navBuscarBtn" onclick="showScreen('search', this)"><i class="fa-solid fa-school"></i><span>Escuelas</span></div>
+            <div class="nav-item active" onclick="showScreen('home', this)"><i class="fa-solid fa-chart-pie"></i><span>Global</span></div>
+            <div class="nav-item" onclick="showScreen('search', this)"><i class="fa-solid fa-tower-broadcast"></i><span>Sondas</span></div>
+            <div class="nav-item" onclick="alert('Función de Mapa en desarrollo')"><i class="fa-solid fa-map-location-dot"></i><span>Mapa</span></div>
+            <div class="nav-item" onclick="alert('Función de Alertas en desarrollo')"><i class="fa-solid fa-triangle-exclamation"></i><span>Alertas</span></div>
         </nav>
     </div>
 
@@ -191,32 +252,26 @@
         let miGraficaPrincipal;
         let miGraficaVelocidad;
 
-        const baseDeDatos = {
-            "albert": { nombre: "C.E. Albert Camus", estado: "Estable", color: "var(--success)", velocidad: [40, 42, 38, 45, 44, 45], velActual: 45, bateria: 89 },
-            "nacional": { nombre: "Instituto Nacional San Salvador", estado: "Alerta Crítica", color: "var(--danger)", velocidad: [25, 20, 15, 12, 10, 12], velActual: 12, bateria: 20 }
-        };
+        // Base de datos de prueba
+        const baseDeDatos = [
+            { id: "1000000073af6fde", nombre: "C.E. Albert Camus", status: "ok", velProm: "194", ups: true, velData: [150, 180, 194, 190, 194, 185] },
+            { id: "1000000084bf9xyz", nombre: "Instituto Nacional San Salvador", status: "fail", velProm: "12", ups: false, velData: [20, 15, 10, 12, 5, 12] },
+            { id: "1000000099cc1abc", nombre: "C.E. Francisco Menendez", status: "ok", velProm: "85", ups: true, velData: [80, 85, 82, 88, 85, 84] }
+        ];
 
-        // 1. SISTEMA DE LOGIN CON ANIMACIÓN
+        // 1. LOGIN
         function iniciarSesion() {
             const user = document.getElementById('userInput').value.toLowerCase();
             const pass = document.getElementById('passInput').value;
             const btn = document.getElementById('btnIngresar');
-            const btnTexto = document.getElementById('btnTexto');
-            const btnSpinner = document.getElementById('btnSpinner');
-            const errorMsg = document.getElementById('errorMsg');
-
-            // Ocultamos errores previos
-            errorMsg.style.display = 'none';
-
-            // ESTADO DE CARGA: Cambiamos botón y deshabilitamos
+            
+            document.getElementById('errorMsg').style.display = 'none';
             btn.disabled = true;
-            btnTexto.innerText = "Verificando...";
-            btnSpinner.style.display = "inline-block";
+            document.getElementById('btnTexto').innerText = "Verificando...";
+            document.getElementById('btnSpinner').style.display = "inline-block";
 
-            // Simulamos el tiempo de respuesta del servidor (1.5 segundos)
             setTimeout(() => {
                 if (user === 'admin' && pass === '1234') {
-                    // Si es exitoso, pasamos al dashboard
                     document.getElementById('login').classList.remove('active');
                     document.getElementById('main-header').style.display = 'flex';
                     document.getElementById('main-nav').style.display = 'flex';
@@ -225,16 +280,12 @@
                     inicializarGraficas();
                     obtenerDatosDeAPI();
                 } else {
-                    // Si falla, mostramos error y regresamos el botón a la normalidad
-                    errorMsg.style.display = 'block';
+                    document.getElementById('errorMsg').style.display = 'block';
                 }
-                
-                // RESTAURAR ESTADO DEL BOTÓN
                 btn.disabled = false;
-                btnTexto.innerText = "Ingresar";
-                btnSpinner.style.display = "none";
-                
-            }, 1500); // 1500 milisegundos = 1.5 segundos
+                document.getElementById('btnTexto').innerText = "Ingresar al Sistema";
+                document.getElementById('btnSpinner').style.display = "none";
+            }, 800); 
         }
 
         function showScreen(screenId, element) {
@@ -244,13 +295,113 @@
             if(element) element.classList.add('active');
         }
 
+        // 2. BUSCADOR CON DROPDOWN
+        function mostrarSugerencias() {
+            const query = document.getElementById('inputBuscador').value.toLowerCase();
+            const lista = document.getElementById('listaResultados');
+            const clearBtn = document.getElementById('clearSearch');
+            
+            clearBtn.style.display = query.length > 0 ? 'block' : 'none';
+
+            if (query.length === 0) {
+                lista.style.display = 'none';
+                return;
+            }
+
+            const resultados = baseDeDatos.filter(escuela => 
+                escuela.nombre.toLowerCase().includes(query) || escuela.id.includes(query)
+            );
+
+            lista.innerHTML = '';
+            
+            if (resultados.length > 0) {
+                resultados.forEach(esc => {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    const badge = esc.status === 'ok' ? '<span class="status-badge ok"><i class="fa-solid fa-check"></i></span>' : '<span class="status-badge fail"><i class="fa-solid fa-xmark"></i></span>';
+                    
+                    div.innerHTML = `
+                        <div style="display:flex; flex-direction:column;">
+                            <span class="search-item-name">${esc.nombre}</span>
+                            <span style="font-size:0.65rem; color:#64748b; font-family:monospace;">${esc.id}</span>
+                        </div>
+                        ${badge}
+                    `;
+                    div.onclick = () => seleccionarEscuela(esc);
+                    lista.appendChild(div);
+                });
+                lista.style.display = 'block';
+            } else {
+                lista.innerHTML = '<div style="padding:15px; text-align:center; color:#94a3b8; font-size:0.85rem;">No se encontraron sondas</div>';
+                lista.style.display = 'block';
+            }
+        }
+
+        function seleccionarEscuela(escuela) {
+            // Ocultar lista y poner nombre en el input
+            document.getElementById('listaResultados').style.display = 'none';
+            document.getElementById('inputBuscador').value = escuela.nombre;
+            
+            // Mostrar info
+            document.getElementById('infoEscuela').style.display = 'block';
+            
+            // Llenar datos
+            document.getElementById('escuelaNombre').innerText = escuela.nombre;
+            document.getElementById('escuelaID').innerText = 'ID: ' + escuela.id;
+            
+            const badge = document.getElementById('escuelaBadge');
+            if(escuela.status === 'ok') {
+                badge.className = 'status-badge ok';
+                badge.innerHTML = '<i class="fa-solid fa-circle"></i> Activo';
+            } else {
+                badge.className = 'status-badge fail';
+                badge.innerHTML = '<i class="fa-solid fa-circle"></i> Falla';
+            }
+
+            // UPS
+            const upsTxt = document.getElementById('upsStatusTxt');
+            const upsBg = document.getElementById('upsIconBg');
+            const upsCol = document.getElementById('upsIconColor');
+            
+            if(escuela.ups) {
+                upsTxt.innerText = "Conectada"; upsTxt.style.color = "#111827";
+                upsBg.style.background = "#1e3a5f15"; upsCol.style.color = "#1e3a5f";
+            } else {
+                upsTxt.innerText = "No conectada"; upsTxt.style.color = "#b91c1c";
+                upsBg.style.background = "#b91c1c15"; upsCol.style.color = "#b91c1c";
+            }
+
+            // Velocidad
+            document.getElementById('velPromTxt').innerText = escuela.velProm + " Mbps";
+            miGraficaVelocidad.data.datasets[0].data = escuela.velData;
+            miGraficaVelocidad.data.datasets[0].borderColor = escuela.status === 'ok' ? '#1e3a5f' : '#b91c1c';
+            miGraficaVelocidad.update();
+        }
+
+        function limpiarBusqueda() {
+            document.getElementById('inputBuscador').value = '';
+            document.getElementById('listaResultados').style.display = 'none';
+            document.getElementById('clearSearch').style.display = 'none';
+            document.getElementById('infoEscuela').style.display = 'none';
+            document.getElementById('inputBuscador').focus();
+        }
+
+        // Cierra la lista si tocas afuera
+        document.addEventListener('click', function(event) {
+            const searchBox = document.querySelector('.search-box');
+            if (!searchBox.contains(event.target)) {
+                document.getElementById('listaResultados').style.display = 'none';
+            }
+        });
+
+        // 3. GRÁFICAS Y DATOS
         function inicializarGraficas() {
             if(!miGraficaPrincipal) {
                 const ctxMain = document.getElementById('mainChart').getContext('2d');
                 miGraficaPrincipal = new Chart(ctxMain, {
                     type: 'doughnut',
-                    data: { labels: ['Conectadas', 'Caídas', 'Alertas'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#10b981', '#ef4444', '#f59e0b'], borderWidth: 0, cutout: '80%' }] },
-                    options: { plugins: { legend: { display: true, position: 'bottom' } }, maintainAspectRatio: false }
+                    data: { labels: ['Activas', 'Caídas'], datasets: [{ data: [0, 0], backgroundColor: ['#16a34a', '#b91c1c'], borderWidth: 0, cutout: '82%' }] },
+                    options: { plugins: { legend: { display: false } }, maintainAspectRatio: false }
                 });
             }
 
@@ -258,54 +409,19 @@
                 const ctxSpeed = document.getElementById('speedChart').getContext('2d');
                 miGraficaVelocidad = new Chart(ctxSpeed, {
                     type: 'line',
-                    data: { labels: ['10am', '11am', '12pm', '1pm', '2pm', '3pm'], datasets: [{ label: 'Mbps', data: baseDeDatos['albert'].velocidad, borderColor: '#1d4ed8', backgroundColor: 'rgba(29, 78, 216, 0.1)', fill: true, tension: 0.4 }] },
-                    options: { plugins: { legend: { display: false } }, scales: { y: { display: false, min: 0 }, x: { grid: { display: false } } }, maintainAspectRatio: false }
+                    data: { labels: ['-5h', '-4h', '-3h', '-2h', '-1h', 'Ahora'], datasets: [{ label: 'Mbps', data: [], borderColor: '#1e3a5f', borderWidth: 2, tension: 0.1, pointRadius: 0 }] },
+                    options: { plugins: { legend: { display: false } }, scales: { y: { display: true, position: 'right', border:{display:false}, grid:{color:'#f1f5f9'} }, x: { grid: { display: false }, border:{display:false} } }, maintainAspectRatio: false }
                 });
             }
         }
 
-        function ejecutarBusqueda() {
-            const query = document.getElementById('inputBuscador').value.toLowerCase();
-            const resultadosDiv = document.getElementById('resultadosBusqueda');
+        function obtenerDatosDeAPI() {
+            // Simulador de Dashboard
+            document.getElementById('dashConectadas').textContent = "5,120";
+            document.getElementById('dashCaidas').textContent = "124";
+            document.getElementById('dashTotal').textContent = "5,244";
             
-            let escuelaEncontrada = null;
-            if(query.includes('albert')) escuelaEncontrada = baseDeDatos['albert'];
-            if(query.includes('nacional')) escuelaEncontrada = baseDeDatos['nacional'];
-
-            if(escuelaEncontrada) {
-                resultadosDiv.style.display = 'block';
-                document.getElementById('nombreEscuelaTit').innerText = escuelaEncontrada.nombre;
-                document.getElementById('estadoRedTxt').innerHTML = `<span class="status-dot" style="background: ${escuelaEncontrada.color};"></span>${escuelaEncontrada.estado}`;
-                document.getElementById('estadoRedTxt').style.color = escuelaEncontrada.color;
-                document.getElementById('velActualTxt').innerText = escuelaEncontrada.velActual;
-                document.getElementById('bateriaTxt').innerText = escuelaEncontrada.bateria + '%';
-                document.getElementById('bateriaTxt').style.color = escuelaEncontrada.color;
-                document.getElementById('bateriaBarra').style.width = escuelaEncontrada.bateria + '%';
-                document.getElementById('bateriaBarra').style.background = escuelaEncontrada.color;
-
-                miGraficaVelocidad.data.datasets[0].data = escuelaEncontrada.velocidad;
-                miGraficaVelocidad.data.datasets[0].borderColor = (escuelaEncontrada.bateria <= 20) ? '#ef4444' : '#1d4ed8';
-                miGraficaVelocidad.data.datasets[0].backgroundColor = (escuelaEncontrada.bateria <= 20) ? 'rgba(239, 68, 68, 0.1)' : 'rgba(29, 78, 216, 0.1)';
-                miGraficaVelocidad.update();
-            } else if (query.length > 3) {
-                resultadosDiv.style.display = 'none';
-            }
-        }
-
-        function verEscuelaDesdeAlerta(termino) {
-            document.getElementById('inputBuscador').value = termino;
-            showScreen('search', document.getElementById('navBuscarBtn'));
-            ejecutarBusqueda();
-        }
-
-        async function obtenerDatosDeAPI() {
-            try { simularDatos(); } catch (error) { simularDatos(); }
-        }
-
-        function simularDatos() {
-            document.querySelector('.stat-value[style*="color: var(--success)"]').textContent = 5120;
-            document.querySelector('.stat-value[style*="color: var(--danger)"]').textContent = 124;
-            miGraficaPrincipal.data.datasets[0].data = [5120, 124, 450];
+            miGraficaPrincipal.data.datasets[0].data = [5120, 124];
             miGraficaPrincipal.update();
         }
     </script>
