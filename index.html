@@ -1,7 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
-<link rel="manifest" href="manifest.json">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ECOS App - Preview</title>
     
+    <link rel="manifest" href="manifest.json">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -11,15 +21,6 @@
             });
         }
     </script>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ECOS App - Preview</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
@@ -33,171 +34,54 @@
             --nav-bg: #ffffff;
         }
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: #1e293b;
-            overflow-x: hidden;
-            /* Evita el rebote del navegador en iOS */
-            overscroll-behavior-y: none;
+            margin: 0; font-family: 'Inter', sans-serif;
+            background-color: var(--bg); color: #1e293b;
+            overflow-x: hidden; overscroll-behavior-y: none;
         }
 
-        /* --- App Shell --- */
         .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            max-width: 500px; /* Limitador para que en PC no se vea gigante */
-            margin: 0 auto;
-            position: relative;
-            background: var(--bg);
+            display: flex; flex-direction: column; height: 100vh;
+            max-width: 500px; margin: 0 auto; position: relative; background: var(--bg);
         }
 
         header {
-            padding: 20px;
-            padding-top: 40px;
-            background: var(--card);
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 20px; padding-top: 40px; background: var(--card);
+            border-bottom: 1px solid #e2e8f0; display: flex;
+            justify-content: space-between; align-items: center;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: var(--primary);
-        }
+        header h1 { margin: 0; font-size: 1.5rem; color: var(--primary); }
 
-        /* --- Screens Management --- */
-        .content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            padding-bottom: 100px;
-        }
+        .content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.3s ease; }
 
-        .screen {
-            display: none;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .screen.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
+        .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-card { text-align: center; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; display: block; }
+        .stat-label { font-size: 0.8rem; color: var(--secondary); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- UI Components --- */
-        .card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .stat-card {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--secondary);
-        }
-
-        /* --- Barra de Navegación --- */
         .bottom-nav {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 80px;
-            background: var(--nav-bg);
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding-bottom: 15px;
-            z-index: 100;
+            position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+            background: var(--nav-bg); border-top: 1px solid #e2e8f0;
+            display: flex; justify-content: space-around; align-items: center;
+            padding-bottom: 15px; z-index: 100;
         }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--secondary);
-            text-decoration: none;
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--secondary); text-decoration: none; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
+        .nav-item i { font-size: 1.4rem; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary); }
 
-        .nav-item i {
-            font-size: 1.4rem;
-            margin-bottom: 4px;
-        }
-
-        .nav-item.active {
-            color: var(--primary);
-        }
-
-        /* --- Buscador --- */
-        .search-bar {
-            background: #e2e8f0;
-            border-radius: 12px;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .search-bar input {
-            background: transparent;
-            border: none;
-            outline: none;
-            margin-left: 10px;
-            width: 100%;
-            font-size: 1rem;
-        }
-
-        /* --- Badge de Escuela --- */
-        .school-badge {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-        }
+        .search-bar { background: #e2e8f0; border-radius: 12px; padding: 12px; display: flex; align-items: center; margin-bottom: 20px; }
+        .search-bar input { background: transparent; border: none; outline: none; margin-left: 10px; width: 100%; font-size: 1rem; }
+        .school-badge { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -223,11 +107,11 @@
 
                 <div class="stat-grid">
                     <div class="card stat-card">
-                        <span class="stat-value" style="color: var(--success);">5.1k</span>
+                        <span class="stat-value" style="color: var(--success);">0</span>
                         <span class="stat-label">Conectadas</span>
                     </div>
                     <div class="card stat-card">
-                        <span class="stat-value" style="color: var(--danger);">124</span>
+                        <span class="stat-value" style="color: var(--danger);">0</span>
                         <span class="stat-label">Caídas</span>
                     </div>
                 </div>
@@ -304,26 +188,26 @@
     </div>
 
     <script>
-        // Función para cambiar de pantalla (simula una App)
+        // ==========================================
+        // 1. LÓGICA DE INTERFAZ (Cambiar pantallas)
+        // ==========================================
         function showScreen(screenId, element) {
-            // Ocultar todas las pantallas
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            // Quitar estado activo de la navegación
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            // Mostrar la seleccionada
             document.getElementById(screenId).classList.add('active');
             element.classList.add('active');
         }
 
-        // --- Gráfica Dashboard Principal (Donut) ---
+        // ==========================================
+        // 2. INICIALIZACIÓN DE GRÁFICAS (Chart.js)
+        // ==========================================
         const ctxMain = document.getElementById('mainChart').getContext('2d');
-        new Chart(ctxMain, {
+        const miGraficaPrincipal = new Chart(ctxMain, {
             type: 'doughnut',
             data: {
                 labels: ['Conectadas', 'Caídas', 'Alertas'],
                 datasets: [{
-                    data: [5100, 124, 450],
+                    data: [0, 0, 0], // Empezamos en 0, la API los llenará
                     backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
                     borderWidth: 0,
                     cutout: '80%'
@@ -335,7 +219,6 @@
             }
         });
 
-        // --- Gráfica Velocidad Escuela (Línea) ---
         const ctxSpeed = document.getElementById('speedChart').getContext('2d');
         new Chart(ctxSpeed, {
             type: 'line',
@@ -356,6 +239,53 @@
                 maintainAspectRatio: false
             }
         });
+
+        // ==========================================
+        // 3. CONEXIÓN A TU API EN CLOUD RUN
+        // ==========================================
+        async function obtenerDatosDeAPI() {
+            try {
+                // Reemplaza esta URL con tu endpoint real de Cloud Run cuando esté listo
+                const urlAPI = 'https://tu-api-en-cloudrun.run.app/api/resumen'; 
+                
+                const respuesta = await fetch(urlAPI, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (respuesta.ok) {
+                    const datos = await respuesta.json();
+                    actualizarInterfaz(datos);
+                } else {
+                    console.error('Error en la API:', respuesta.status);
+                    simularDatos(); 
+                }
+            } catch (error) {
+                console.error('Error de red:', error);
+                simularDatos(); // Usar datos de prueba si no hay conexión
+            }
+        }
+
+        // Función para inyectar los datos en la pantalla
+        function actualizarInterfaz(datos) {
+            document.querySelector('.stat-value[style*="color: var(--success)"]').textContent = datos.conectadas;
+            document.querySelector('.stat-value[style*="color: var(--danger)"]').textContent = datos.desconectadas;
+
+            miGraficaPrincipal.data.datasets[0].data = [datos.conectadas, datos.desconectadas, datos.alertas];
+            miGraficaPrincipal.update();
+        }
+
+        // Datos de prueba temporales
+        function simularDatos() {
+            console.log("Cargando datos simulados...");
+            actualizarInterfaz({
+                conectadas: 5120,
+                desconectadas: 124,
+                alertas: 450
+            });
+        }
+
+        obtenerDatosDeAPI();
     </script>
 </body>
 </html>
