@@ -101,9 +101,9 @@
             <div id="login" class="screen active">
                 <div class="login-container">
                     <div style="text-align: center; margin-bottom: 40px;">
-                        <div style="background: var(--primary); width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                            <i class="fa-solid fa-satellite-dish" style="color: white; font-size: 2.5rem;"></i>
-                        </div>
+                        
+                        <img src="https://dashboard.ecos-app.com/_next/image?url=%2Fbrand%2Fecos-logo-256.png&w=256&q=75" alt="Logo ECOS" style="width: 100px; height: 100px; margin: 0 auto 15px; display: block; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+                        
                         <h1 style="color: var(--primary); font-size: 2rem; margin-bottom: 5px;">ECOS Mobile</h1>
                         <p style="color: var(--secondary);">Monitoreo de Red Escolar</p>
                     </div>
@@ -183,19 +183,15 @@
 
             // --- Credenciales de prueba temporal ---
             if (user === 'admin' && pass === '1234') {
-                // Ocultar login y error
                 errorMsg.style.display = 'none';
                 document.getElementById('login').classList.remove('active');
                 
-                // Mostrar Header, Navegación y Dashboard
                 document.getElementById('main-header').style.display = 'flex';
                 document.getElementById('main-nav').style.display = 'flex';
                 document.getElementById('home').classList.add('active');
                 
-                // Cargar los datos de Cloud Run AHORA que ya inició sesión
                 obtenerDatosDeAPI();
             } else {
-                // Mostrar error
                 errorMsg.style.display = 'block';
             }
         }
