@@ -37,6 +37,7 @@
         .screen.active { display: flex; flex-direction: column; animation: fadeIn 0.3s ease; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         /* Pantalla de Carga (Loader) */
         #loaderOverlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.75); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(3px); }
         .loader-text { margin-top: 15px; font-weight: 600; color: #1e3a5f; font-size: 0.95rem; letter-spacing: 0.5px; }
@@ -55,7 +56,6 @@
         .btn-primary { background-color: #1e3a5f; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; display: flex; justify-content: center; gap: 8px; align-items: center; margin-top: 5px; }
         .btn-primary:active:not(:disabled) { background-color: #0f1d32; }
         
-        /* AQUÍ DEVOLVEMOS EL ESTILO DEL LINK DE OLVIDO DE CLAVE */
         .login-link { display: block; text-align: center; font-size: 0.8rem; color: #6b7280; margin-top: 15px; text-decoration: none; }
         .login-footer { text-align: center; font-size: 0.7rem; color: #9ca3af; margin-top: 25px; }
 
@@ -272,11 +272,13 @@
 
         let miGraficaPrincipal, miGraficaVelocidad, miMapa, capaMarcadores;
         let cacheTodosLosEnlaces = [];
+        
         // Funciones del Reloj Visual
         function mostrarLoader() { document.getElementById('loaderOverlay').style.display = 'flex'; }
         function ocultarLoader() { document.getElementById('loaderOverlay').style.display = 'none'; }
 
         // --- FUNCIONES BIOMÉTRICAS (FACE ID / HUELLA) ---
+        // (Se declaran una sola vez)
         const { startRegistration, startAuthentication } = SimpleWebAuthnBrowser;
 
         // 1. LOGIN TRADICIONAL
@@ -292,7 +294,7 @@
                 const response = await fetch(`${API_BASE_URL}/api/mobile/login`, {
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' }, 
-                    credentials: 'include', // <--- LA LLAVE MÁGICA QUE FALTABA
+                    credentials: 'include', 
                     body: JSON.stringify({ username: user, password: pass })
                 });
 
@@ -301,45 +303,51 @@
                     document.getElementById('main-header').style.display = 'flex';
                     document.getElementById('mainContent').style.display = 'flex';
                     document.getElementById('main-nav').style.display = 'flex';
+                    
                     showScreen('home', document.querySelector('.nav-item')); 
-                    inicializarGraficas(); obtenerDatosDeAPI(); cargarTodosLosEnlaces(true);
+                    
+                    inicializarGraficas(); obtenerDatosDeAPI(); 
+                    cargarTodosLosEnlaces(); 
+                    
+                    // Intervalo de actualización automática seguro
                     setInterval(() => actualizarPantallaActual(true), 30000);
-
-                    // Preguntar si quiere registrar biometría
+                    
+                    // Dispara el prompt de biometría después de entrar exitosamente
                     setTimeout(registrarBiometria, 1000);
                 } else { document.getElementById('errorMsg').style.display = 'block'; }
             } catch (error) { document.getElementById('errorMsg').innerText = "Error conectando al servidor"; document.getElementById('errorMsg').style.display = 'block'; } 
             finally { btn.disabled = false; document.getElementById('btnTexto').innerText = "Ingresar"; document.getElementById('btnSpinner').style.display = "none"; }
         }
 
-        // 2. REGISTRAR LA HUELLA (Se dispara solo después del login)
+        // 2. REGISTRO DE BIOMETRÍA
         async function registrarBiometria() {
             if (!confirm("¿Deseas habilitar Face ID o Huella para entrar más rápido la próxima vez?")) return;
             try {
                 const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/options`, { 
                     method: 'POST', 
-                    credentials: 'include' // <--- LA LLAVE MÁGICA QUE FALTABA
+                    credentials: 'include' 
                 });
                 
                 if (!respOpciones.ok) throw new Error("Fallo al pedir opciones");
                 const opciones = await respOpciones.json();
+                
                 const credencial = await startRegistration(opciones);
                 
                 const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/verify`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-                    credentials: 'include', // <--- LA LLAVE MÁGICA QUE FALTABA
+                    credentials: 'include', 
                     body: JSON.stringify(credencial)
                 });
                 
                 if(respVerificar.ok) {
-                    alert("¡Biometría configurada con éxito! Ya puedes entrar con Face ID/Huella.");
+                    alert("¡Biometría configurada con éxito! Ya puedes usar Face ID/Huella.");
                 } else {
-                    alert("No se pudo guardar la biometría.");
+                    alert("No se pudo guardar la biometría en el servidor.");
                 }
             } catch (error) { console.log("Registro cancelado o fallido", error); }
         }
 
-        // 3. ENTRAR DIRECTO CON HUELLA/FACE ID
+        // 3. ENTRADA CON BIOMETRÍA
         async function ingresarConBiometria() {
             const user = document.getElementById('userInput').value.toLowerCase().trim();
             if (!user) {
@@ -364,7 +372,7 @@
                 }
 
                 const opciones = await respOpciones.json();
-                ocultarLoader(); 
+                ocultarLoader(); // Ocultamos el spinner visual porque el sistema mostrará su propio UI
                 
                 const credencial = await startAuthentication(opciones);
                 
@@ -380,6 +388,7 @@
                     document.getElementById('main-header').style.display = 'flex';
                     document.getElementById('mainContent').style.display = 'flex';
                     document.getElementById('main-nav').style.display = 'flex';
+                    
                     showScreen('home', document.querySelector('.nav-item')); 
                     inicializarGraficas(); obtenerDatosDeAPI(); cargarTodosLosEnlaces(true);
                     setInterval(() => actualizarPantallaActual(true), 30000);
@@ -390,12 +399,7 @@
             } finally { ocultarLoader(); }
         }
 
-        // Asegúrate de agregar credentials: 'include' también en el botón de Logout
-        async function cerrarSesion() {
-            const userIcon = document.querySelector('.fa-circle-user'); userIcon.classList.remove('fa-regular'); userIcon.classList.add('fa-solid', 'fa-spin');
-            try { await fetch(`${API_BASE_URL}/api/mobile/logout`, { method: 'POST', credentials: 'include' }); } catch (error) {}
-            setTimeout(() => { document.getElementById('login').style.display = 'block'; document.getElementById('main-header').style.display = 'none'; document.getElementById('mainContent').style.display = 'none'; document.getElementById('main-nav').style.display = 'none'; document.getElementById('userInput').value = ''; document.getElementById('passInput').value = ''; userIcon.classList.remove('fa-solid', 'fa-spin'); userIcon.classList.add('fa-regular'); }, 500);
-        }        // 2. NAVEGACIÓN
+        // 4. NAVEGACIÓN
         function showScreen(screenId, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -407,7 +411,7 @@
             if (screenId === 'map-screen') inicializarMapa();
         }
 
-        // 3. ENLACES Y LISTA
+        // 5. ENLACES Y LISTA
         async function cargarTodosLosEnlaces(silencioso = false) {
             if (!silencioso) mostrarLoader();
             try {
@@ -456,7 +460,7 @@
         function limpiarBusqueda() { document.getElementById('inputBuscador').value = ''; document.getElementById('clearSearch').style.display = 'none'; renderizarLista(cacheTodosLosEnlaces); }
         function cerrarDetalle() { document.getElementById('infoEscuela').style.display = 'none'; document.getElementById('listaResultados').style.display = 'block'; document.querySelector('.search-box').style.display = 'block'; }
 
-        // 4. DETALLE DE ENLACE
+        // 6. DETALLE DE ENLACE
         async function seleccionarEscuela(idSonda, silencioso = false) {
             if (!silencioso) mostrarLoader();
             document.getElementById('listaResultados').style.display = 'none'; document.querySelector('.search-box').style.display = 'none';
@@ -495,7 +499,7 @@
             finally { if (!silencioso) ocultarLoader(); }
         }
 
-        // 5. INICIALIZAR MAPA Y DIBUJAR PUNTOS
+        // 7. MAPA Y DIBUJAR PUNTOS
         function inicializarMapa() {
             if (!miMapa) {
                 miMapa = L.map('mapa').setView([13.794185, -88.896530], 8);
@@ -544,7 +548,7 @@
             });
         }
 
-        // 6. DASHBOARD
+        // 8. DASHBOARD Y GRAFICAS
         async function obtenerDatosDeAPI(silencioso = false) {
             if (!silencioso) mostrarLoader();
             try {
@@ -579,10 +583,10 @@
             }
         }
         
-        // 7. HEADER FUNCIONES
+        // 9. HEADER Y REFRESH
         async function cerrarSesion() {
             const userIcon = document.querySelector('.fa-circle-user'); userIcon.classList.remove('fa-regular'); userIcon.classList.add('fa-solid', 'fa-spin');
-            try { await fetch(`${API_BASE_URL}/api/mobile/logout`, { method: 'POST' }); } catch (error) {}
+            try { await fetch(`${API_BASE_URL}/api/mobile/logout`, { method: 'POST', credentials: 'include' }); } catch (error) {}
             setTimeout(() => { document.getElementById('login').style.display = 'block'; document.getElementById('main-header').style.display = 'none'; document.getElementById('mainContent').style.display = 'none'; document.getElementById('main-nav').style.display = 'none'; document.getElementById('userInput').value = ''; document.getElementById('passInput').value = ''; userIcon.classList.remove('fa-solid', 'fa-spin'); userIcon.classList.add('fa-regular'); }, 500);
         }
 
@@ -604,74 +608,7 @@
                 promise = cargarTodosLosEnlaces(silencioso).then(() => dibujarPuntosMapa());
             }
 
-            // Apaga el giro de la flechita superior cuando termina de procesar
             promise.finally(() => { if(btn) btn.classList.remove('fa-spin'); });
-        }
-        // --- FUNCIONES BIOMÉTRICAS (FACE ID / HUELLA) ---
-        const { startRegistration, startAuthentication } = SimpleWebAuthnBrowser;
-
-        // Ofrecer registro después de un login exitoso con contraseña
-        async function registrarBiometria() {
-            if (!confirm("¿Deseas habilitar Face ID o Huella para entrar más rápido la próxima vez?")) return;
-            try {
-                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/options`, { method: 'POST' });
-                const opciones = await respOpciones.json();
-                
-                const credencial = await startRegistration(opciones);
-                
-                const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/verify`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(credencial)
-                });
-                
-                if(respVerificar.ok) alert("¡Biometría configurada con éxito!");
-            } catch (error) { console.log("Registro cancelado o fallido", error); }
-        }
-
-        // Entrar usando la huella (Reemplaza el uso de contraseña)
-        async function ingresarConBiometria() {
-            const user = document.getElementById('userInput').value.toLowerCase().trim();
-            if (!user) {
-                document.getElementById('errorMsg').innerText = "Ingresa tu usuario primero para usar Face ID";
-                document.getElementById('errorMsg').style.display = 'block';
-                return;
-            }
-
-            try {
-                mostrarLoader();
-                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/login/options`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: user })
-                });
-                
-                if (!respOpciones.ok) {
-                    ocultarLoader();
-                    document.getElementById('errorMsg').innerText = "Este usuario no tiene Face ID habilitado";
-                    document.getElementById('errorMsg').style.display = 'block';
-                    return;
-                }
-
-                const opciones = await respOpciones.json();
-                ocultarLoader(); // Ocultamos cargador porque el SO mostrará la pantalla de escaneo
-                
-                const credencial = await startAuthentication(opciones);
-                
-                mostrarLoader();
-                const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/login/verify`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(credencial)
-                });
-
-                if (respVerificar.ok) {
-                    document.getElementById('login').style.display = 'none';
-                    document.getElementById('main-header').style.display = 'flex';
-                    document.getElementById('mainContent').style.display = 'flex';
-                    document.getElementById('main-nav').style.display = 'flex';
-                    showScreen('home', document.querySelector('.nav-item')); 
-                    inicializarGraficas(); obtenerDatosDeAPI(); cargarTodosLosEnlaces(true);
-                    setInterval(() => actualizarPantallaActual(true), 30000);
-                } else { throw new Error(); }
-            } catch (error) { 
-                document.getElementById('errorMsg').innerText = "Error validando Face ID / Huella"; 
-                document.getElementById('errorMsg').style.display = 'block'; 
-            } finally { ocultarLoader(); }
         }
     </script>
 </body>
