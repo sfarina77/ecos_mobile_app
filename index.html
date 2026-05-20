@@ -181,8 +181,8 @@
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-rotate-right" style="color: var(--ecos-text-muted); font-size: 0.9rem;" onclick="obtenerDatosDeAPI()"></i>
-                <i class="fa-regular fa-circle-user" style="color: var(--ecos-text-muted); font-size: 1.2rem;"></i>
+                <i id="btnRefresh" class="fa-solid fa-rotate-right" style="color: var(--ecos-text-muted); font-size: 0.9rem; cursor: pointer;" onclick="actualizarPantallaActual()"></i>
+                <i class="fa-regular fa-circle-user" style="color: var(--ecos-text-muted); font-size: 1.2rem; cursor: pointer;" onclick="cerrarSesion()"></i>
             </div>
         </header>
 
@@ -461,6 +461,70 @@
                 console.error("Error obteniendo dashboard:", error);
             }
         }
+        async function obtenerDatosDeAPI() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/mobile/resumen`);
+                if (!response.ok) throw new Error("Error de red");
+                const data = await response.json();
+
+                document.getElementById('dashConectadas').textContent = data.sondas_activas.toLocaleString();
+                document.getElementById('dashCaidas').textContent = data.sondas_caidas.toLocaleString();
+                document.getElementById('dashTotal').textContent = data.total.toLocaleString();
+                
+                miGraficaPrincipal.data.datasets[0].data = [data.sondas_activas, data.sondas_caidas];
+                miGraficaPrincipal.update();
+            } catch (error) {
+                console.error("Error obteniendo dashboard:", error);
+            }
+        }
+
+        // ==========================================
+        // 7. FUNCIONES DE HEADER (REFRESH Y LOGOUT)
+        // ==========================================
+        async function cerrarSesion() {
+            const userIcon = document.querySelector('.fa-circle-user');
+            userIcon.classList.remove('fa-regular');
+            userIcon.classList.add('fa-solid', 'fa-spin');
+            
+            try {
+                await fetch(`${API_BASE_URL}/api/mobile/logout`, { method: 'POST' });
+            } catch (error) { console.log(error); }
+
+            setTimeout(() => {
+                document.getElementById('login').style.display = 'block';
+                document.getElementById('main-header').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('main-nav').style.display = 'none';
+                
+                document.getElementById('userInput').value = '';
+                document.getElementById('passInput').value = '';
+                
+                userIcon.classList.remove('fa-solid', 'fa-spin');
+                userIcon.classList.add('fa-regular');
+            }, 500);
+        }
+
+        function actualizarPantallaActual() {
+            const btn = document.getElementById('btnRefresh');
+            if(btn) {
+                btn.classList.add('fa-spin');
+                setTimeout(() => btn.classList.remove('fa-spin'), 1000);
+            }
+
+            const currentScreen = document.querySelector('.screen.active').id;
+            
+            if (currentScreen === 'home') {
+                obtenerDatosDeAPI(); 
+            } else if (currentScreen === 'search') {
+                const idSondaActiva = document.getElementById('escuelaID').innerText.replace('ID: ', '').trim();
+                if (idSondaActiva && idSondaActiva !== '0000') {
+                    seleccionarEscuela(idSondaActiva); 
+                }
+            }
+        }
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
