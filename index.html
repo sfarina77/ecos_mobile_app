@@ -276,7 +276,10 @@
         function mostrarLoader() { document.getElementById('loaderOverlay').style.display = 'flex'; }
         function ocultarLoader() { document.getElementById('loaderOverlay').style.display = 'none'; }
 
-        // 1. LOGIN
+        // --- FUNCIONES BIOMÉTRICAS (FACE ID / HUELLA) ---
+        const { startRegistration, startAuthentication } = SimpleWebAuthnBrowser;
+
+        // 1. LOGIN TRADICIONAL
         async function iniciarSesion() {
             const user = document.getElementById('userInput').value.toLowerCase().trim();
             const pass = document.getElementById('passInput').value;
@@ -287,7 +290,9 @@
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/mobile/login`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    credentials: 'include', // <--- LA LLAVE MÁGICA QUE FALTABA
                     body: JSON.stringify({ username: user, password: pass })
                 });
 
@@ -296,21 +301,101 @@
                     document.getElementById('main-header').style.display = 'flex';
                     document.getElementById('mainContent').style.display = 'flex';
                     document.getElementById('main-nav').style.display = 'flex';
-                    
                     showScreen('home', document.querySelector('.nav-item')); 
-                    
-                    inicializarGraficas(); obtenerDatosDeAPI(); 
-                    cargarTodosLosEnlaces(true); // Precarga silenciosa para el mapa sin tapar la pantalla
-                    
-                    // Reloj automático cada 30 segundos (en modo silencioso)
+                    inicializarGraficas(); obtenerDatosDeAPI(); cargarTodosLosEnlaces(true);
                     setInterval(() => actualizarPantallaActual(true), 30000);
+
+                    // Preguntar si quiere registrar biometría
                     setTimeout(registrarBiometria, 1000);
                 } else { document.getElementById('errorMsg').style.display = 'block'; }
             } catch (error) { document.getElementById('errorMsg').innerText = "Error conectando al servidor"; document.getElementById('errorMsg').style.display = 'block'; } 
             finally { btn.disabled = false; document.getElementById('btnTexto').innerText = "Ingresar"; document.getElementById('btnSpinner').style.display = "none"; }
         }
 
-        // 2. NAVEGACIÓN
+        // 2. REGISTRAR LA HUELLA (Se dispara solo después del login)
+        async function registrarBiometria() {
+            if (!confirm("¿Deseas habilitar Face ID o Huella para entrar más rápido la próxima vez?")) return;
+            try {
+                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/options`, { 
+                    method: 'POST', 
+                    credentials: 'include' // <--- LA LLAVE MÁGICA QUE FALTABA
+                });
+                
+                if (!respOpciones.ok) throw new Error("Fallo al pedir opciones");
+                const opciones = await respOpciones.json();
+                const credencial = await startRegistration(opciones);
+                
+                const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/verify`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                    credentials: 'include', // <--- LA LLAVE MÁGICA QUE FALTABA
+                    body: JSON.stringify(credencial)
+                });
+                
+                if(respVerificar.ok) {
+                    alert("¡Biometría configurada con éxito! Ya puedes entrar con Face ID/Huella.");
+                } else {
+                    alert("No se pudo guardar la biometría.");
+                }
+            } catch (error) { console.log("Registro cancelado o fallido", error); }
+        }
+
+        // 3. ENTRAR DIRECTO CON HUELLA/FACE ID
+        async function ingresarConBiometria() {
+            const user = document.getElementById('userInput').value.toLowerCase().trim();
+            if (!user) {
+                document.getElementById('errorMsg').innerText = "Primero escribe tu usuario arriba";
+                document.getElementById('errorMsg').style.display = 'block';
+                return;
+            }
+
+            try {
+                mostrarLoader();
+                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/login/options`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                    credentials: 'include', 
+                    body: JSON.stringify({ username: user })
+                });
+                
+                if (!respOpciones.ok) {
+                    ocultarLoader();
+                    document.getElementById('errorMsg').innerText = "Este usuario no tiene Face ID habilitado";
+                    document.getElementById('errorMsg').style.display = 'block';
+                    return;
+                }
+
+                const opciones = await respOpciones.json();
+                ocultarLoader(); 
+                
+                const credencial = await startAuthentication(opciones);
+                
+                mostrarLoader();
+                const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/login/verify`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                    credentials: 'include',
+                    body: JSON.stringify(credencial)
+                });
+
+                if (respVerificar.ok) {
+                    document.getElementById('login').style.display = 'none';
+                    document.getElementById('main-header').style.display = 'flex';
+                    document.getElementById('mainContent').style.display = 'flex';
+                    document.getElementById('main-nav').style.display = 'flex';
+                    showScreen('home', document.querySelector('.nav-item')); 
+                    inicializarGraficas(); obtenerDatosDeAPI(); cargarTodosLosEnlaces(true);
+                    setInterval(() => actualizarPantallaActual(true), 30000);
+                } else { throw new Error(); }
+            } catch (error) { 
+                document.getElementById('errorMsg').innerText = "Huella no reconocida o cancelada"; 
+                document.getElementById('errorMsg').style.display = 'block'; 
+            } finally { ocultarLoader(); }
+        }
+
+        // Asegúrate de agregar credentials: 'include' también en el botón de Logout
+        async function cerrarSesion() {
+            const userIcon = document.querySelector('.fa-circle-user'); userIcon.classList.remove('fa-regular'); userIcon.classList.add('fa-solid', 'fa-spin');
+            try { await fetch(`${API_BASE_URL}/api/mobile/logout`, { method: 'POST', credentials: 'include' }); } catch (error) {}
+            setTimeout(() => { document.getElementById('login').style.display = 'block'; document.getElementById('main-header').style.display = 'none'; document.getElementById('mainContent').style.display = 'none'; document.getElementById('main-nav').style.display = 'none'; document.getElementById('userInput').value = ''; document.getElementById('passInput').value = ''; userIcon.classList.remove('fa-solid', 'fa-spin'); userIcon.classList.add('fa-regular'); }, 500);
+        }        // 2. NAVEGACIÓN
         function showScreen(screenId, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
