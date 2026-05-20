@@ -8,6 +8,9 @@
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -19,61 +22,40 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        body {
-            margin: 0; font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; color: #1e293b;
-            overflow-x: hidden; overscroll-behavior-y: none;
-        }
+        body { margin: 0; font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; overflow-x: hidden; overscroll-behavior-y: none; }
 
-        .app-container {
-            display: flex; flex-direction: column; height: 100dvh;
-            max-width: 500px; margin: 0 auto; position: relative; background: #f8fafc;
-        }
+        .app-container { display: flex; flex-direction: column; height: 100dvh; max-width: 500px; margin: 0 auto; position: relative; background: #f8fafc; }
 
-        header {
-            padding: 15px 20px; padding-top: 45px; background: #0a1628;
-            border-bottom: 1px solid #1e3a5f; display: none;
-            justify-content: space-between; align-items: center; color: white;
-        }
+        header { padding: 15px 20px; padding-top: 45px; background: #0a1628; border-bottom: 1px solid #1e3a5f; display: none; justify-content: space-between; align-items: center; color: white; }
         .header-title-box { display: flex; flex-direction: column; }
         .header-title { font-weight: 700; font-size: 1rem; letter-spacing: 0.05em; line-height: 1.2; text-transform: uppercase; }
         .header-subtitle { color: #93c5fd; font-size: 0.7rem; line-height: 1.2; }
 
-        .content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
-        .screen { display: none; }
-        .screen.active { display: block; animation: fadeIn 0.3s ease; }
+        .content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; display: flex; flex-direction: column;}
+        .screen { display: none; flex: 1; }
+        .screen.active { display: flex; flex-direction: column; animation: fadeIn 0.3s ease; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Login */
         #login { background-color: #0a1628; height: 100%; width: 100%; position: absolute; z-index: 2000; }
         .login-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: 20px; }
-        
-        .login-box {
-            background-color: white; border-radius: 12px; width: 100%; padding: 30px 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid rgba(30, 58, 95, 0.12);
-        }
-
+        .login-box { background-color: white; border-radius: 12px; width: 100%; padding: 30px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid rgba(30, 58, 95, 0.12); }
         .login-logo-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
         .login-logo { width: 90px; height: 90px; object-fit: contain; margin-bottom: 5px; }
         .login-subtitle { font-size: 0.75rem; color: #6b7280; text-align: center; }
-
         .form-group { margin-bottom: 15px; }
         .form-label { display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 5px; }
         .login-input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.9rem; outline: none; transition: 0.2s; }
         .login-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-        
         .btn-primary { background-color: #1e3a5f; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; display: flex; justify-content: center; gap: 8px; align-items: center; margin-top: 5px; }
         .btn-primary:active:not(:disabled) { background-color: #0f1d32; }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .login-link { display: block; text-align: center; font-size: 0.8rem; color: #6b7280; margin-top: 15px; text-decoration: none; }
         .login-footer { text-align: center; font-size: 0.7rem; color: #9ca3af; margin-top: 25px; }
 
+        /* General Styles */
         .section-title { font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 4px; }
         .section-subtitle { font-size: 0.8rem; color: #6b7280; margin-bottom: 15px; margin-top: 0;}
-        
         .card { background: #ffffff; border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
         .stat-card { display: flex; flex-direction: column; gap: 5px; }
         .stat-icon-box { display: flex; align-items: center; gap: 8px; }
@@ -81,29 +63,34 @@
         .stat-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
         .stat-value { font-size: 1.5rem; font-weight: 700; }
 
+        /* Search & List */
         .search-box { position: relative; margin-bottom: 20px; }
         .search-input-wrapper { background: white; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; align-items: center; padding: 10px 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .search-input-wrapper input { border: none; outline: none; width: 100%; font-size: 0.95rem; margin-left: 10px; color: #1e293b; }
-        
         .search-results { background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 5px; overflow: hidden; }
         .search-item { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .search-item:last-child { border-bottom: none; }
-        .search-item:active { background: #f8fafc; }
         .search-item-name { font-size: 0.9rem; font-weight: 500; color: #1e293b; }
         .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
         .status-badge.ok { background: #16a34a15; color: #16a34a; }
         .status-badge.fail { background: #b91c1c15; color: #b91c1c; }
 
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 75px;
-            background: #0a1628; border-top: 1px solid #1e3a5f;
-            display: none; justify-content: space-around; align-items: center;
-            padding-bottom: env(safe-area-inset-bottom, 10px); z-index: 1000;
-            max-width: 500px; margin: 0 auto;
-        }
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: #0a1628; border-top: 1px solid #1e3a5f; display: none; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom, 10px); z-index: 1000; max-width: 500px; margin: 0 auto; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; text-decoration: none; font-size: 0.65rem; font-weight: 500; cursor: pointer; transition: 0.2s; gap: 4px; }
         .nav-item i { font-size: 1.2rem; }
         .nav-item.active { color: white; }
+
+        /* CSS DEL MAPA Y LOS PUNTOS */
+        #mapa-container { border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .leaflet-control-attribution { display: none !important; }
+        
+        .marker-red { background-color: #ef4444; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 6px rgba(239, 68, 68, 0.8); }
+        .marker-green-bright { background-color: #22c55e; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 6px rgba(34, 197, 94, 0.8); }
+        .marker-green-soft { background-color: #86efac; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 6px rgba(134, 239, 172, 0.6); }
+        .marker-yellow-blink { background-color: #eab308; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 8px rgba(234, 179, 8, 0.9); animation: parpadeo 1s infinite; }
+        
+        @keyframes parpadeo { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -132,12 +119,7 @@
                         <span id="btnTexto">Ingresar</span>
                         <i id="btnSpinner" class="fa-solid fa-circle-notch fa-spin" style="display: none;"></i>
                     </button>
-                    
                     <p id="errorMsg" style="color: #b91c1c; text-align: center; margin-top: 15px; display: none; font-size: 0.8rem;">Usuario o contraseña incorrectos</p>
-
-                    <div class="login-footer">
-                        Ministerio de Educación · El Salvador
-                    </div>
                 </div>
             </div>
         </div>
@@ -199,7 +181,7 @@
                 </div>
             </div>
 
-            <div id="search" class="screen">
+            <div id="search" class="screen" style="display: none;">
                 <h2 class="section-title">Enlaces de Red</h2>
                 <p class="section-subtitle">Listado y estado de dispositivos</p>
 
@@ -210,8 +192,7 @@
                         <i class="fa-solid fa-circle-xmark" style="color: #cbd5e1; cursor: pointer; display: none;" id="clearSearch" onclick="limpiarBusqueda()"></i>
                     </div>
                     
-                    <div class="search-results" id="listaResultados" style="display: none; margin-top: 15px;">
-                        </div>
+                    <div class="search-results" id="listaResultados" style="display: none; margin-top: 15px;"></div>
                 </div>
 
                 <div id="infoEscuela" style="display: none;">
@@ -252,12 +233,20 @@
                 </div>
             </div>
 
+            <div id="map-screen" class="screen" style="display: none; height: 100%;">
+                <h2 class="section-title">Mapa Nacional</h2>
+                <p class="section-subtitle">Ubicación y estado en tiempo real</p>
+                <div id="mapa-container" style="flex: 1; min-height: 400px; width: 100%; position: relative;">
+                    <div id="mapa" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;"></div>
+                </div>
+            </div>
+
         </div>
 
         <nav id="main-nav" class="bottom-nav">
             <div class="nav-item active" onclick="showScreen('home', this)"><i class="fa-solid fa-chart-pie"></i><span>Global</span></div>
             <div class="nav-item" onclick="showScreen('search', this)"><i class="fa-solid fa-tower-broadcast"></i><span>Enlaces</span></div>
-            <div class="nav-item" onclick="alert('Función de Mapa en desarrollo')"><i class="fa-solid fa-map-location-dot"></i><span>Mapa</span></div>
+            <div class="nav-item" onclick="showScreen('map-screen', this)"><i class="fa-solid fa-map-location-dot"></i><span>Mapa</span></div>
             <div class="nav-item" onclick="alert('Función de Alertas en desarrollo')"><i class="fa-solid fa-triangle-exclamation"></i><span>Alertas</span></div>
         </nav>
     </div>
@@ -265,9 +254,8 @@
     <script>
         const API_BASE_URL = 'https://ecos-api-mobile-743427305494.us-central1.run.app';
 
-        let miGraficaPrincipal;
-        let miGraficaVelocidad;
-        let cacheTodosLosEnlaces = []; // Para buscar sin recargar
+        let miGraficaPrincipal, miGraficaVelocidad, miMapa, capaMarcadores;
+        let cacheTodosLosEnlaces = [];
 
         // 1. LOGIN
         async function iniciarSesion() {
@@ -276,40 +264,29 @@
             const btn = document.getElementById('btnIngresar');
             
             document.getElementById('errorMsg').style.display = 'none';
-            btn.disabled = true;
-            document.getElementById('btnTexto').innerText = "Verificando...";
-            document.getElementById('btnSpinner').style.display = "inline-block";
+            btn.disabled = true; document.getElementById('btnTexto').innerText = "Verificando..."; document.getElementById('btnSpinner').style.display = "inline-block";
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/mobile/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: user, password: pass })
                 });
 
                 if (response.ok) {
                     document.getElementById('login').style.display = 'none';
                     document.getElementById('main-header').style.display = 'flex';
-                    document.getElementById('mainContent').style.display = 'block';
+                    document.getElementById('mainContent').style.display = 'flex';
                     document.getElementById('main-nav').style.display = 'flex';
                     document.getElementById('home').classList.add('active');
                     
-                    inicializarGraficas();
-                    obtenerDatosDeAPI(); 
-                } else {
-                    document.getElementById('errorMsg').style.display = 'block';
-                }
-            } catch (error) {
-                document.getElementById('errorMsg').innerText = "Error conectando al servidor";
-                document.getElementById('errorMsg').style.display = 'block';
-            } finally {
-                btn.disabled = false;
-                document.getElementById('btnTexto').innerText = "Ingresar";
-                document.getElementById('btnSpinner').style.display = "none";
-            }
+                    inicializarGraficas(); obtenerDatosDeAPI(); 
+                    cargarTodosLosEnlaces(); // Precarga silenciosa para el mapa
+                } else { document.getElementById('errorMsg').style.display = 'block'; }
+            } catch (error) { document.getElementById('errorMsg').innerText = "Error conectando al servidor"; document.getElementById('errorMsg').style.display = 'block'; } 
+            finally { btn.disabled = false; document.getElementById('btnTexto').innerText = "Ingresar"; document.getElementById('btnSpinner').style.display = "none"; }
         }
 
-        // 2. ORQUESTADOR DE PANTALLAS
+        // 2. NAVEGACIÓN
         function showScreen(screenId, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -317,30 +294,16 @@
             if(element) element.classList.add('active');
 
             if (screenId === 'home') obtenerDatosDeAPI();
-            if (screenId === 'search') cargarTodosLosEnlaces(); 
+            if (screenId === 'search') renderizarLista(cacheTodosLosEnlaces);
+            if (screenId === 'map-screen') inicializarMapa();
         }
 
-        // 3. CARGA COMPLETA DE ENLACES
+        // 3. ENLACES Y LISTA
         async function cargarTodosLosEnlaces() {
-            const lista = document.getElementById('listaResultados');
-            document.getElementById('infoEscuela').style.display = 'none';
-            document.getElementById('inputBuscador').value = '';
-            
-            if(cacheTodosLosEnlaces.length === 0) {
-                lista.innerHTML = '<div style="padding:15px; text-align:center; color:#94a3b8; font-size:0.85rem;"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando enlaces...</div>';
-                lista.style.display = 'block';
-            }
-
             try {
-                // Al enviar "q" vacío, el backend nos devuelve todo ordenado
                 const response = await fetch(`${API_BASE_URL}/api/mobile/sondas/buscar?q=`);
-                if (!response.ok) throw new Error("Error obteniendo resultados");
-                
                 cacheTodosLosEnlaces = await response.json();
-                renderizarLista(cacheTodosLosEnlaces);
-            } catch (error) {
-                console.error("Error cargando enlaces:", error);
-            }
+            } catch (error) { console.error(error); }
         }
 
         function renderizarLista(resultados) {
@@ -352,173 +315,149 @@
                     const div = document.createElement('div');
                     div.className = 'search-item';
                     
-                    // El icono de la derecha (Check verde o X roja)
-                    const badge = esc.status === 'ok' 
-                        ? '<span class="status-badge ok"><i class="fa-solid fa-check"></i></span>' 
-                        : '<span class="status-badge fail"><i class="fa-solid fa-link-slash"></i></span>';
-                    
-                    // Lógica para mostrar la UPS o los guiones si está desconectada
+                    const badge = esc.status === 'ok' ? '<span class="status-badge ok"><i class="fa-solid fa-check"></i></span>' : '<span class="status-badge fail"><i class="fa-solid fa-link-slash"></i></span>';
                     const upsStr = esc.ups_conectada ? `UPS ${esc.ups_nivel}%` : 'UPS --';
 
-                    // Se inyecta el HTML de la tarjeta
                     div.innerHTML = `
                     <div style="display:flex; flex-direction:column;">
                         <span class="search-item-name">${esc.nombre}</span>
-                        <span style="font-size:0.65rem; color:#64748b; font-family:monospace; margin-top:2px;">
-                            ${esc.id}
-                        </span>
+                        <span style="font-size:0.65rem; color:#64748b; font-family:monospace; margin-top:2px;">${esc.id}</span>
                         <span style="font-size:0.65rem; color:#64748b; font-weight:500; margin-top:4px;">
                             ETH: ${esc.eth_speed} Mbps &nbsp;•&nbsp; WIFI: ${esc.wifi_speed} Mbps &nbsp;•&nbsp; ${upsStr}
                         </span>
-                    </div>
-                    ${badge}`;
+                    </div>${badge}`;
                     
                     div.onclick = () => seleccionarEscuela(esc.id);
                     lista.appendChild(div);
                 });
                 lista.style.display = 'block';
-            } else {
-                lista.innerHTML = '<div style="padding:15px; text-align:center; color:#94a3b8; font-size:0.85rem;">No se encontraron enlaces</div>';
-                lista.style.display = 'block';
-            }
+            } else { lista.innerHTML = '<div style="padding:15px; text-align:center; color:#94a3b8; font-size:0.85rem;">No se encontraron enlaces</div>'; lista.style.display = 'block'; }
         }
-        
+
         function filtrarLocalmente() {
             const query = document.getElementById('inputBuscador').value.trim().toLowerCase();
             document.getElementById('clearSearch').style.display = query.length > 0 ? 'block' : 'none';
-
-            if (query.length === 0) {
-                renderizarLista(cacheTodosLosEnlaces);
-                return;
-            }
-
-            const filtrados = cacheTodosLosEnlaces.filter(esc => 
-                esc.nombre.toLowerCase().includes(query) || 
-                esc.id.toLowerCase().includes(query)
-            );
+            if (query.length === 0) { renderizarLista(cacheTodosLosEnlaces); return; }
+            const filtrados = cacheTodosLosEnlaces.filter(esc => esc.nombre.toLowerCase().includes(query) || esc.id.toLowerCase().includes(query));
             renderizarLista(filtrados);
         }
 
-        function limpiarBusqueda() { 
-            document.getElementById('inputBuscador').value = ''; 
-            document.getElementById('clearSearch').style.display = 'none'; 
-            renderizarLista(cacheTodosLosEnlaces);
-        }
+        function limpiarBusqueda() { document.getElementById('inputBuscador').value = ''; document.getElementById('clearSearch').style.display = 'none'; renderizarLista(cacheTodosLosEnlaces); }
+        function cerrarDetalle() { document.getElementById('infoEscuela').style.display = 'none'; document.getElementById('listaResultados').style.display = 'block'; document.querySelector('.search-box').style.display = 'block'; }
 
-        function cerrarDetalle() {
-            document.getElementById('infoEscuela').style.display = 'none';
-            document.getElementById('listaResultados').style.display = 'block';
-            document.querySelector('.search-box').style.display = 'block';
-        }
-
-        // 4. DETALLE DE ENLACE (Fetch Real)
+        // 4. DETALLE DE ENLACE
         async function seleccionarEscuela(idSonda) {
-            document.getElementById('listaResultados').style.display = 'none';
-            document.querySelector('.search-box').style.display = 'none';
-            
+            document.getElementById('listaResultados').style.display = 'none'; document.querySelector('.search-box').style.display = 'none';
             try {
                 const response = await fetch(`${API_BASE_URL}/api/mobile/sondas/${idSonda}`);
                 const escuela = await response.json();
 
                 document.getElementById('infoEscuela').style.display = 'block';
-                
-                document.getElementById('escuelaNombre').innerText = escuela.nombre;
-                document.getElementById('escuelaID').innerText = 'ID: ' + escuela.id;
+                document.getElementById('escuelaNombre').innerText = escuela.nombre; document.getElementById('escuelaID').innerText = 'ID: ' + escuela.id;
                 
                 const badge = document.getElementById('escuelaBadge');
-                if(escuela.status === 'ok') { 
-                    badge.className = 'status-badge ok'; badge.innerHTML = '<i class="fa-solid fa-check"></i> Activo'; 
-                    document.getElementById('filtroTxt').innerText = "OK / Activo";
-                } else { 
-                    badge.className = 'status-badge fail'; badge.innerHTML = '<i class="fa-solid fa-link-slash"></i> Falla'; 
-                    document.getElementById('filtroTxt').innerText = "Falla de red";
-                }
+                if(escuela.status === 'ok') { badge.className = 'status-badge ok'; badge.innerHTML = '<i class="fa-solid fa-check"></i> Activo'; document.getElementById('filtroTxt').innerText = "OK / Activo"; } 
+                else { badge.className = 'status-badge fail'; badge.innerHTML = '<i class="fa-solid fa-link-slash"></i> Falla'; document.getElementById('filtroTxt').innerText = "Falla de red"; }
 
-                const upsTxt = document.getElementById('upsStatusTxt');
-                const upsBg = document.getElementById('upsIconBg');
-                const upsCol = document.getElementById('upsIconColor');
-                
-                if(escuela.ups_conectada) { 
-                    upsTxt.innerText = "Conectada"; upsTxt.style.color = "#111827"; upsBg.style.background = "#1e3a5f15"; upsCol.style.color = "#1e3a5f"; 
-                } else { 
-                    upsTxt.innerText = "Desconectada"; upsTxt.style.color = "#b91c1c"; upsBg.style.background = "#b91c1c15"; upsCol.style.color = "#b91c1c"; 
-                }
+                const upsTxt = document.getElementById('upsStatusTxt'); const upsBg = document.getElementById('upsIconBg'); const upsCol = document.getElementById('upsIconColor');
+                if(escuela.ups_conectada) { upsTxt.innerText = "Conectada"; upsTxt.style.color = "#111827"; upsBg.style.background = "#1e3a5f15"; upsCol.style.color = "#1e3a5f"; } 
+                else { upsTxt.innerText = "Desconectada"; upsTxt.style.color = "#b91c1c"; upsBg.style.background = "#b91c1c15"; upsCol.style.color = "#b91c1c"; }
 
                 document.getElementById('velPromTxt').innerText = escuela.velocidad_promedio + " Mbps";
-                
-                miGraficaVelocidad.data.datasets[0].data = escuela.historial_velocidad;
-                miGraficaVelocidad.data.datasets[0].borderColor = escuela.status === 'ok' ? '#1e3a5f' : '#b91c1c';
-                miGraficaVelocidad.update();
-            } catch (error) {
-                console.error("Error cargando escuela:", error);
-            }
+                miGraficaVelocidad.data.datasets[0].data = escuela.historial_velocidad; miGraficaVelocidad.data.datasets[0].borderColor = escuela.status === 'ok' ? '#1e3a5f' : '#b91c1c'; miGraficaVelocidad.update();
+            } catch (error) { console.error(error); }
         }
 
-        // 5. GRÁFICAS
-        function inicializarGraficas() {
-            if(!miGraficaPrincipal) {
-                const ctxMain = document.getElementById('mainChart').getContext('2d');
-                miGraficaPrincipal = new Chart(ctxMain, { type: 'doughnut', data: { labels: ['Activos', 'Caídos'], datasets: [{ data: [0, 0], backgroundColor: ['#16a34a', '#b91c1c'], borderWidth: 0, cutout: '82%' }] }, options: { plugins: { legend: { display: false } }, maintainAspectRatio: false } });
+        // 5. INICIALIZAR MAPA Y DIBUJAR PUNTOS
+        function inicializarMapa() {
+            if (!miMapa) {
+                // Coordenadas centrales de El Salvador
+                miMapa = L.map('mapa').setView([13.794185, -88.896530], 8);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(miMapa);
+                capaMarcadores = L.layerGroup().addTo(miMapa);
             }
-            if(!miGraficaVelocidad) {
-                const ctxSpeed = document.getElementById('speedChart').getContext('2d');
-                miGraficaVelocidad = new Chart(ctxSpeed, { type: 'line', data: { labels: ['-5h', '-4h', '-3h', '-2h', '-1h', 'Ahora'], datasets: [{ label: 'Mbps', data: [], borderColor: '#1e3a5f', borderWidth: 2, tension: 0.1, pointRadius: 0 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { display: true, position: 'right', border:{display:false}, grid:{color:'#f1f5f9'} }, x: { grid: { display: false }, border:{display:false} } }, maintainAspectRatio: false } });
-            }
+            
+            // Forzar recálculo del contenedor para que no se vea gris
+            setTimeout(() => miMapa.invalidateSize(), 300);
+            dibujarPuntosMapa();
         }
 
-        // 6. DASHBOARD (Carga de Datos y ETH/WIFI)
+        function dibujarPuntosMapa() {
+            if (!capaMarcadores) return;
+            capaMarcadores.clearLayers();
+            
+            cacheTodosLosEnlaces.forEach(esc => {
+                if (esc.lat && esc.lon) {
+                    let cssClase = '';
+                    
+                    // REGLA DE COLORES DE LA PRIORIDAD:
+                    // 1. Si ambas están en 0 (Red muerta) -> ROJO
+                    // 2. Si UPS está entre 1 y 79 -> AMARILLO TITILANDO
+                    // 3. Si ambas están mayores a 0 -> VERDE INTENSO
+                    // 4. Si solo una está levantada -> VERDE SUAVE
+                    if (esc.eth_speed === 0 && esc.wifi_speed === 0) {
+                        cssClase = 'marker-red';
+                    } else if (esc.ups_nivel > 0 && esc.ups_nivel < 80) {
+                        cssClase = 'marker-yellow-blink';
+                    } else if (esc.eth_speed > 0 && esc.wifi_speed > 0) {
+                        cssClase = 'marker-green-bright';
+                    } else {
+                        cssClase = 'marker-green-soft';
+                    }
+
+                    const iconoPersonalizado = L.divIcon({
+                        className: cssClase,
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8],
+                        popupAnchor: [0, -10]
+                    });
+
+                    L.marker([esc.lat, esc.lon], {icon: iconoPersonalizado})
+                     .addTo(capaMarcadores)
+                     .bindPopup(`
+                        <div style="font-family: 'Inter', sans-serif;">
+                            <strong style="color: #0a1628;">${esc.nombre}</strong><br>
+                            <span style="font-size: 0.8rem; color: #64748b;">ETH: ${esc.eth_speed} | WIFI: ${esc.wifi_speed}</span><br>
+                            <span style="font-size: 0.8rem; color: #64748b;">UPS: ${esc.ups_conectada ? esc.ups_nivel + '%' : '--'}</span>
+                        </div>
+                     `);
+                }
+            });
+        }
+
+        // 6. DASHBOARD
         async function obtenerDatosDeAPI() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/mobile/resumen`);
-                if (!response.ok) throw new Error("Error de red");
                 const data = await response.json();
+                document.getElementById('dashConectadas').textContent = data.sondas_activas.toLocaleString(); document.getElementById('dashCaidas').textContent = data.sondas_caidas.toLocaleString(); document.getElementById('dashTotal').textContent = data.total.toLocaleString();
+                document.getElementById('ethActivos').textContent = data.eth_activos.toLocaleString(); document.getElementById('wifiActivos').textContent = data.wifi_activos.toLocaleString(); document.getElementById('ethCaidos').textContent = data.eth_caidos.toLocaleString(); document.getElementById('wifiCaidos').textContent = data.wifi_caidos.toLocaleString();
+                miGraficaPrincipal.data.datasets[0].data = [data.sondas_activas, data.sondas_caidas]; miGraficaPrincipal.update();
+            } catch (error) {}
+        }
 
-                document.getElementById('dashConectadas').textContent = data.sondas_activas.toLocaleString();
-                document.getElementById('dashCaidas').textContent = data.sondas_caidas.toLocaleString();
-                document.getElementById('dashTotal').textContent = data.total.toLocaleString();
-                
-                document.getElementById('ethActivos').textContent = data.eth_activos.toLocaleString();
-                document.getElementById('wifiActivos').textContent = data.wifi_activos.toLocaleString();
-                document.getElementById('ethCaidos').textContent = data.eth_caidos.toLocaleString();
-                document.getElementById('wifiCaidos').textContent = data.wifi_caidos.toLocaleString();
-                
-                miGraficaPrincipal.data.datasets[0].data = [data.sondas_activas, data.sondas_caidas];
-                miGraficaPrincipal.update();
-            } catch (error) {
-                console.error("Error obteniendo dashboard:", error);
-            }
+        function inicializarGraficas() {
+            if(!miGraficaPrincipal) { const ctxMain = document.getElementById('mainChart').getContext('2d'); miGraficaPrincipal = new Chart(ctxMain, { type: 'doughnut', data: { labels: ['Activos', 'Caídos'], datasets: [{ data: [0, 0], backgroundColor: ['#16a34a', '#b91c1c'], borderWidth: 0, cutout: '82%' }] }, options: { plugins: { legend: { display: false } }, maintainAspectRatio: false } }); }
+            if(!miGraficaVelocidad) { const ctxSpeed = document.getElementById('speedChart').getContext('2d'); miGraficaVelocidad = new Chart(ctxSpeed, { type: 'line', data: { labels: ['-5h', '-4h', '-3h', '-2h', '-1h', 'Ahora'], datasets: [{ label: 'Mbps', data: [], borderColor: '#1e3a5f', borderWidth: 2, tension: 0.1, pointRadius: 0 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { display: true, position: 'right', border:{display:false}, grid:{color:'#f1f5f9'} }, x: { grid: { display: false }, border:{display:false} } }, maintainAspectRatio: false } }); }
         }
 
         // 7. HEADER FUNCIONES
         async function cerrarSesion() {
-            const userIcon = document.querySelector('.fa-circle-user');
-            userIcon.classList.remove('fa-regular'); userIcon.classList.add('fa-solid', 'fa-spin');
-            
+            const userIcon = document.querySelector('.fa-circle-user'); userIcon.classList.remove('fa-regular'); userIcon.classList.add('fa-solid', 'fa-spin');
             try { await fetch(`${API_BASE_URL}/api/mobile/logout`, { method: 'POST' }); } catch (error) {}
-
-            setTimeout(() => {
-                document.getElementById('login').style.display = 'block';
-                document.getElementById('main-header').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'none';
-                document.getElementById('main-nav').style.display = 'none';
-                
-                document.getElementById('userInput').value = ''; document.getElementById('passInput').value = '';
-                userIcon.classList.remove('fa-solid', 'fa-spin'); userIcon.classList.add('fa-regular');
-            }, 500);
+            setTimeout(() => { document.getElementById('login').style.display = 'block'; document.getElementById('main-header').style.display = 'none'; document.getElementById('mainContent').style.display = 'none'; document.getElementById('main-nav').style.display = 'none'; document.getElementById('userInput').value = ''; document.getElementById('passInput').value = ''; userIcon.classList.remove('fa-solid', 'fa-spin'); userIcon.classList.add('fa-regular'); }, 500);
         }
 
         function actualizarPantallaActual() {
-            const btn = document.getElementById('btnRefresh');
-            if(btn) { btn.classList.add('fa-spin'); setTimeout(() => btn.classList.remove('fa-spin'), 1000); }
-
+            const btn = document.getElementById('btnRefresh'); if(btn) { btn.classList.add('fa-spin'); setTimeout(() => btn.classList.remove('fa-spin'), 1000); }
             const currentScreen = document.querySelector('.screen.active').id;
             
             if (currentScreen === 'home') obtenerDatosDeAPI(); 
             else if (currentScreen === 'search') {
-                if (document.getElementById('infoEscuela').style.display === 'block') {
-                    const id = document.getElementById('escuelaID').innerText.replace('ID: ', '').trim();
-                    seleccionarEscuela(id);
-                } else { cargarTodosLosEnlaces(); }
+                if (document.getElementById('infoEscuela').style.display === 'block') { const id = document.getElementById('escuelaID').innerText.replace('ID: ', '').trim(); seleccionarEscuela(id); } 
+                else { cargarTodosLosEnlaces(); }
+            } else if (currentScreen === 'map-screen') {
+                cargarTodosLosEnlaces().then(() => dibujarPuntosMapa());
             }
         }
     </script>
