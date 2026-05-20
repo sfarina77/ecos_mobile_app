@@ -38,11 +38,9 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Pantalla de Carga (Loader) */
         #loaderOverlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.75); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(3px); }
         .loader-text { margin-top: 15px; font-weight: 600; color: #1e3a5f; font-size: 0.95rem; letter-spacing: 0.5px; }
         
-        /* Login */
         #login { background-color: #0a1628; height: 100%; width: 100%; position: absolute; z-index: 2000; }
         .login-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: 20px; }
         .login-box { background-color: white; border-radius: 12px; width: 100%; padding: 30px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid rgba(30, 58, 95, 0.12); }
@@ -59,7 +57,6 @@
         .login-link { display: block; text-align: center; font-size: 0.8rem; color: #6b7280; margin-top: 15px; text-decoration: none; }
         .login-footer { text-align: center; font-size: 0.7rem; color: #9ca3af; margin-top: 25px; }
 
-        /* General Styles */
         .section-title { font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 4px; }
         .section-subtitle { font-size: 0.8rem; color: #6b7280; margin-bottom: 15px; margin-top: 0;}
         .card { background: #ffffff; border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
@@ -70,7 +67,6 @@
         .stat-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
         .stat-value { font-size: 1.5rem; font-weight: 700; }
 
-        /* Search & List */
         .search-box { position: relative; margin-bottom: 20px; }
         .search-input-wrapper { background: white; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; align-items: center; padding: 10px 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .search-input-wrapper input { border: none; outline: none; width: 100%; font-size: 0.95rem; margin-left: 10px; color: #1e293b; }
@@ -78,17 +74,17 @@
         .search-item { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .search-item:last-child { border-bottom: none; }
         .search-item-name { font-size: 0.9rem; font-weight: 500; color: #1e293b; }
-        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+        
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .status-badge.ok { background: #16a34a15; color: #16a34a; }
         .status-badge.fail { background: #b91c1c15; color: #b91c1c; }
+        .status-badge.warn { background: #fef3c7; color: #b45309; }
 
-        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: #0a1628; border-top: 1px solid #1e3a5f; display: none; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom, 10px); z-index: 1000; max-width: 500px; margin: 0 auto; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; text-decoration: none; font-size: 0.65rem; font-weight: 500; cursor: pointer; transition: 0.2s; gap: 4px; }
         .nav-item i { font-size: 1.2rem; }
         .nav-item.active { color: white; }
 
-        /* CSS DEL MAPA Y LOS PUNTOS */
         #mapa-container { border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .leaflet-control-attribution { display: none !important; }
         
@@ -98,6 +94,18 @@
         .marker-yellow-blink { background-color: #eab308; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 8px rgba(234, 179, 8, 0.9); animation: parpadeo 1s infinite; }
         
         @keyframes parpadeo { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }
+        
+        /* TICKETS CSS */
+        .ticket-log { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        .ticket-log-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.7rem; }
+        .ticket-log-author { font-weight: 700; color: #1e293b; }
+        .ticket-log-date { color: #64748b; font-family: monospace; }
+        .ticket-log-text { font-size: 0.85rem; color: #334155; line-height: 1.4; }
+        
+        .ticket-input-container { display: flex; gap: 8px; margin-top: 15px; }
+        .ticket-input { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; outline: none; }
+        .ticket-input:focus { border-color: #1e3a5f; }
+        .btn-send { background: #1e3a5f; color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -119,7 +127,6 @@
                         <label class="form-label" for="userInput">Usuario</label>
                         <input type="text" id="userInput" class="login-input" placeholder="nombre_usuario" autocomplete="off">
                     </div>
-
                     <div class="form-group">
                         <label class="form-label" for="passInput">Contraseña</label>
                         <input type="password" id="passInput" class="login-input" placeholder="••••••••">
@@ -207,7 +214,6 @@
                         <input type="text" id="inputBuscador" placeholder="Filtrar enlace..." onkeyup="filtrarLocalmente()">
                         <i class="fa-solid fa-circle-xmark" style="color: #cbd5e1; cursor: pointer; display: none;" id="clearSearch" onclick="limpiarBusqueda()"></i>
                     </div>
-                    
                     <div class="search-results" id="listaResultados" style="display: none; margin-top: 15px;"></div>
                 </div>
 
@@ -257,13 +263,53 @@
                 </div>
             </div>
 
+            <div id="tickets-screen" class="screen">
+                <h2 class="section-title">Tickets de Soporte</h2>
+                <p class="section-subtitle">Bitácora de seguimiento en campo</p>
+                
+                <div id="listaTicketsContenedor" style="display: block;">
+                    <div class="search-results" id="listaTickets" style="display: block; margin-top: 5px;"></div>
+                </div>
+
+                <div id="detalleTicket" style="display: none;">
+                    <button class="btn-primary" style="margin-bottom: 15px; background: #e2e8f0; color: #1e293b;" onclick="cerrarDetalleTicket()"><i class="fa-solid fa-arrow-left"></i> Volver a tickets</button>
+                    
+                    <div class="card" style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                            <div>
+                                <span class="status-badge" id="detTicketFalla" style="background: #fef3c7; color: #b45309; margin-bottom: 5px;">Tipo Falla</span>
+                                <h3 id="detTicketEscuela" style="margin: 0; font-size: 1.1rem; color: #111827;">Escuela</h3>
+                            </div>
+                            <span id="detTicketEstado" class="status-badge">ESTADO</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b;">
+                            <span id="detTicketApertura">Apertura: --</span>
+                            <span id="detTicketDuracion">Activo: --</span>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 10px;">Bitácora Técnica</h4>
+                    <div id="contenedorBitacora" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
+                        </div>
+
+                    <div id="zonaComentario" class="ticket-input-container">
+                        <input type="hidden" id="ticketActualId">
+                        <input type="text" id="nuevoComentario" class="ticket-input" placeholder="Añadir actualización..." onkeypress="if(event.key === 'Enter') guardarComentarioTicket()">
+                        <button class="btn-send" onclick="guardarComentarioTicket()"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                    <div id="zonaCerrado" style="display: none; background: #f1f5f9; padding: 12px; border-radius: 8px; text-align: center; color: #64748b; font-size: 0.8rem; font-weight: 500;">
+                        🔒 Ticket cerrado. Historial de solo lectura.
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <nav id="main-nav" class="bottom-nav">
             <div class="nav-item active" onclick="showScreen('home', this)"><i class="fa-solid fa-chart-pie"></i><span>Global</span></div>
             <div class="nav-item" onclick="showScreen('search', this)"><i class="fa-solid fa-tower-broadcast"></i><span>Enlaces</span></div>
             <div class="nav-item" onclick="showScreen('map-screen', this)"><i class="fa-solid fa-map-location-dot"></i><span>Mapa</span></div>
-            <div class="nav-item" onclick="alert('Función de Alertas en desarrollo')"><i class="fa-solid fa-triangle-exclamation"></i><span>Alertas</span></div>
+            <div class="nav-item" onclick="showScreen('tickets-screen', this)"><i class="fa-solid fa-clipboard-list"></i><span>Tickets</span></div>
         </nav>
     </div>
 
@@ -272,16 +318,14 @@
 
         let miGraficaPrincipal, miGraficaVelocidad, miMapa, capaMarcadores;
         let cacheTodosLosEnlaces = [];
+        let cacheTickets = [];
         
-        // Funciones del Reloj Visual
         function mostrarLoader() { document.getElementById('loaderOverlay').style.display = 'flex'; }
         function ocultarLoader() { document.getElementById('loaderOverlay').style.display = 'none'; }
 
-        // --- FUNCIONES BIOMÉTRICAS (FACE ID / HUELLA) ---
-        // (Se declaran una sola vez)
         const { startRegistration, startAuthentication } = SimpleWebAuthnBrowser;
 
-        // 1. LOGIN TRADICIONAL
+        // 1. LOGIN Y NAVEGACIÓN
         async function iniciarSesion() {
             const user = document.getElementById('userInput').value.toLowerCase().trim();
             const pass = document.getElementById('passInput').value;
@@ -292,114 +336,21 @@
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/mobile/login`, {
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    credentials: 'include', 
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', 
                     body: JSON.stringify({ username: user, password: pass })
                 });
 
                 if (response.ok) {
-                    document.getElementById('login').style.display = 'none';
-                    document.getElementById('main-header').style.display = 'flex';
-                    document.getElementById('mainContent').style.display = 'flex';
-                    document.getElementById('main-nav').style.display = 'flex';
-                    
+                    document.getElementById('login').style.display = 'none'; document.getElementById('main-header').style.display = 'flex'; document.getElementById('mainContent').style.display = 'flex'; document.getElementById('main-nav').style.display = 'flex';
                     showScreen('home', document.querySelector('.nav-item')); 
-                    
-                    inicializarGraficas(); obtenerDatosDeAPI(); 
-                    cargarTodosLosEnlaces(); 
-                    
-                    // Intervalo de actualización automática seguro
+                    inicializarGraficas(); obtenerDatosDeAPI(); cargarTodosLosEnlaces(true);
                     setInterval(() => actualizarPantallaActual(true), 30000);
-                    
-                    // Dispara el prompt de biometría después de entrar exitosamente
                     setTimeout(registrarBiometria, 1000);
                 } else { document.getElementById('errorMsg').style.display = 'block'; }
             } catch (error) { document.getElementById('errorMsg').innerText = "Error conectando al servidor"; document.getElementById('errorMsg').style.display = 'block'; } 
             finally { btn.disabled = false; document.getElementById('btnTexto').innerText = "Ingresar"; document.getElementById('btnSpinner').style.display = "none"; }
         }
 
-        // 2. REGISTRO DE BIOMETRÍA
-        async function registrarBiometria() {
-            if (!confirm("¿Deseas habilitar Face ID o Huella para entrar más rápido la próxima vez?")) return;
-            try {
-                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/options`, { 
-                    method: 'POST', 
-                    credentials: 'include' 
-                });
-                
-                if (!respOpciones.ok) throw new Error("Fallo al pedir opciones");
-                const opciones = await respOpciones.json();
-                
-                const credencial = await startRegistration(opciones);
-                
-                const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/verify`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-                    credentials: 'include', 
-                    body: JSON.stringify(credencial)
-                });
-                
-                if(respVerificar.ok) {
-                    alert("¡Biometría configurada con éxito! Ya puedes usar Face ID/Huella.");
-                } else {
-                    alert("No se pudo guardar la biometría en el servidor.");
-                }
-            } catch (error) { console.log("Registro cancelado o fallido", error); }
-        }
-
-        // 3. ENTRADA CON BIOMETRÍA
-        async function ingresarConBiometria() {
-            const user = document.getElementById('userInput').value.toLowerCase().trim();
-            if (!user) {
-                document.getElementById('errorMsg').innerText = "Primero escribe tu usuario arriba";
-                document.getElementById('errorMsg').style.display = 'block';
-                return;
-            }
-
-            try {
-                mostrarLoader();
-                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/login/options`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-                    credentials: 'include', 
-                    body: JSON.stringify({ username: user })
-                });
-                
-                if (!respOpciones.ok) {
-                    ocultarLoader();
-                    document.getElementById('errorMsg').innerText = "Este usuario no tiene Face ID habilitado";
-                    document.getElementById('errorMsg').style.display = 'block';
-                    return;
-                }
-
-                const opciones = await respOpciones.json();
-                ocultarLoader(); // Ocultamos el spinner visual porque el sistema mostrará su propio UI
-                
-                const credencial = await startAuthentication(opciones);
-                
-                mostrarLoader();
-                const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/login/verify`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-                    credentials: 'include',
-                    body: JSON.stringify(credencial)
-                });
-
-                if (respVerificar.ok) {
-                    document.getElementById('login').style.display = 'none';
-                    document.getElementById('main-header').style.display = 'flex';
-                    document.getElementById('mainContent').style.display = 'flex';
-                    document.getElementById('main-nav').style.display = 'flex';
-                    
-                    showScreen('home', document.querySelector('.nav-item')); 
-                    inicializarGraficas(); obtenerDatosDeAPI(); cargarTodosLosEnlaces(true);
-                    setInterval(() => actualizarPantallaActual(true), 30000);
-                } else { throw new Error(); }
-            } catch (error) { 
-                document.getElementById('errorMsg').innerText = "Huella no reconocida o cancelada"; 
-                document.getElementById('errorMsg').style.display = 'block'; 
-            } finally { ocultarLoader(); }
-        }
-
-        // 4. NAVEGACIÓN
         function showScreen(screenId, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -409,9 +360,171 @@
             if (screenId === 'home') obtenerDatosDeAPI();
             if (screenId === 'search') renderizarLista(cacheTodosLosEnlaces);
             if (screenId === 'map-screen') inicializarMapa();
+            if (screenId === 'tickets-screen') {
+                if (document.getElementById('detalleTicket').style.display !== 'block') cargarTickets();
+            }
         }
 
-        // 5. ENLACES Y LISTA
+        // BIOMETRÍA
+        async function registrarBiometria() {
+            if (!confirm("¿Deseas habilitar Face ID o Huella para entrar más rápido la próxima vez?")) return;
+            try {
+                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/options`, { method: 'POST', credentials: 'include' });
+                if (!respOpciones.ok) throw new Error("Fallo al pedir opciones");
+                const opciones = await respOpciones.json();
+                const credencial = await startRegistration(opciones);
+                const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/verify`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(credencial)
+                });
+                if(respVerificar.ok) alert("¡Biometría configurada con éxito!");
+            } catch (error) { console.log(error); }
+        }
+
+        async function ingresarConBiometria() {
+            const user = document.getElementById('userInput').value.toLowerCase().trim();
+            if (!user) { document.getElementById('errorMsg').innerText = "Primero escribe tu usuario arriba"; document.getElementById('errorMsg').style.display = 'block'; return; }
+            try {
+                mostrarLoader();
+                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/login/options`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ username: user }) });
+                if (!respOpciones.ok) { ocultarLoader(); document.getElementById('errorMsg').innerText = "Usuario sin Face ID habilitado"; document.getElementById('errorMsg').style.display = 'block'; return; }
+                const opciones = await respOpciones.json();
+                ocultarLoader(); 
+                const credencial = await startAuthentication(opciones);
+                mostrarLoader();
+                const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/login/verify`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(credencial) });
+                if (respVerificar.ok) {
+                    document.getElementById('login').style.display = 'none'; document.getElementById('main-header').style.display = 'flex'; document.getElementById('mainContent').style.display = 'flex'; document.getElementById('main-nav').style.display = 'flex';
+                    showScreen('home', document.querySelector('.nav-item')); 
+                    inicializarGraficas(); obtenerDatosDeAPI(); cargarTodosLosEnlaces(true);
+                    setInterval(() => actualizarPantallaActual(true), 30000);
+                } else { throw new Error(); }
+            } catch (error) { document.getElementById('errorMsg').innerText = "Huella no reconocida o cancelada"; document.getElementById('errorMsg').style.display = 'block'; } 
+            finally { ocultarLoader(); }
+        }
+
+        // 3. TICKETS DE SOPORTE
+        async function cargarTickets(silencioso = false) {
+            if(!silencioso) mostrarLoader();
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/mobile/tickets`, {credentials: 'include'});
+                cacheTickets = await response.json();
+                renderizarListaTickets();
+            } catch (error) { console.error(error); }
+            finally { if(!silencioso) ocultarLoader(); }
+        }
+
+        function renderizarListaTickets() {
+            const lista = document.getElementById('listaTickets'); lista.innerHTML = '';
+            if (cacheTickets.length > 0) {
+                cacheTickets.forEach(tk => {
+                    const div = document.createElement('div'); div.className = 'search-item';
+                    const isAbierto = tk.estado === 'ABIERTO';
+                    const badgeClass = isAbierto ? 'fail' : 'ok';
+                    const badgeText = isAbierto ? 'ABIERTO' : 'CERRADO';
+                    
+                    div.innerHTML = `
+                    <div style="display:flex; flex-direction:column; width: 100%;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                            <span style="font-size:0.65rem; font-weight:700; color:#1e3a5f;">#${tk.id}</span>
+                            <span class="status-badge ${badgeClass}">${badgeText}</span>
+                        </div>
+                        <span class="search-item-name">${tk.escuela}</span>
+                        <span style="font-size:0.75rem; color:#64748b; margin-top:2px;">Falla: ${tk.falla}</span>
+                        <span style="font-size:0.65rem; color:#94a3b8; margin-top:4px;">Inició: ${tk.apertura}</span>
+                    </div>`;
+                    div.onclick = () => abrirTicket(tk.id);
+                    lista.appendChild(div);
+                });
+            } else { lista.innerHTML = '<div style="padding:15px; text-align:center; color:#94a3b8; font-size:0.85rem;">No hay tickets registrados</div>'; }
+        }
+
+        function abrirTicket(id) {
+            const tk = cacheTickets.find(t => t.id === id);
+            if (!tk) return;
+            
+            document.getElementById('listaTicketsContenedor').style.display = 'none';
+            document.getElementById('detalleTicket').style.display = 'block';
+            
+            document.getElementById('detTicketEscuela').innerText = tk.escuela;
+            document.getElementById('detTicketFalla').innerText = tk.falla;
+            
+            const badge = document.getElementById('detTicketEstado');
+            if(tk.estado === 'ABIERTO') { badge.className = 'status-badge fail'; badge.innerText = 'ABIERTO'; }
+            else { badge.className = 'status-badge ok'; badge.innerText = 'CERRADO'; }
+            
+            document.getElementById('detTicketApertura').innerText = `Apertura: ${tk.apertura}`;
+            document.getElementById('detTicketDuracion').innerText = `Activo: ${tk.duracion}`;
+            
+            const bitacora = document.getElementById('contenedorBitacora');
+            bitacora.innerHTML = '';
+            if(tk.actualizaciones && tk.actualizaciones.length > 0) {
+                tk.actualizaciones.forEach(log => {
+                    bitacora.innerHTML += `
+                        <div class="ticket-log">
+                            <div class="ticket-log-header">
+                                <span class="ticket-log-author">${log.autor}</span>
+                                <span class="ticket-log-date">${log.fecha}</span>
+                            </div>
+                            <div class="ticket-log-text">${log.txt}</div>
+                        </div>`;
+                });
+            } else { bitacora.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; margin: 10px 0;">Sin actualizaciones</div>'; }
+
+            if(tk.estado === 'ABIERTO') {
+                document.getElementById('zonaComentario').style.display = 'flex';
+                document.getElementById('zonaCerrado').style.display = 'none';
+                document.getElementById('ticketActualId').value = tk.id;
+            } else {
+                document.getElementById('zonaComentario').style.display = 'none';
+                document.getElementById('zonaCerrado').style.display = 'block';
+            }
+        }
+
+        function cerrarDetalleTicket() {
+            document.getElementById('detalleTicket').style.display = 'none';
+            document.getElementById('listaTicketsContenedor').style.display = 'block';
+        }
+
+        async function guardarComentarioTicket() {
+            const input = document.getElementById('nuevoComentario');
+            const txt = input.value.trim();
+            const idCaso = document.getElementById('ticketActualId').value;
+            
+            if(!txt || !idCaso) return;
+            
+            input.disabled = true;
+            try {
+                mostrarLoader();
+                const response = await fetch(`${API_BASE_URL}/api/mobile/tickets/update`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                    body: JSON.stringify({ id_caso: parseInt(idCaso), comentario: txt })
+                });
+                
+                if(response.ok) {
+                    const data = await response.json();
+                    input.value = '';
+                    
+                    // Inyectar visualmente sin recargar todo
+                    const bitacora = document.getElementById('contenedorBitacora');
+                    if(bitacora.innerHTML.includes('Sin actualizaciones')) bitacora.innerHTML = '';
+                    const nuevoLog = `
+                        <div class="ticket-log" style="border-left: 3px solid #16a34a;">
+                            <div class="ticket-log-header">
+                                <span class="ticket-log-author">${data.autor}</span>
+                                <span class="ticket-log-date">${data.fecha}</span>
+                            </div>
+                            <div class="ticket-log-text">${data.txt}</div>
+                        </div>`;
+                    bitacora.insertAdjacentHTML('afterbegin', nuevoLog);
+                    
+                    // Actualizar en caché silenciosamente
+                    cargarTickets(true);
+                } else { alert("Error al guardar comentario"); }
+            } catch(e) { alert("Error de red"); }
+            finally { input.disabled = false; ocultarLoader(); }
+        }
+
+        // ENLACES Y DASHBOARD (Sin cambios)
         async function cargarTodosLosEnlaces(silencioso = false) {
             if (!silencioso) mostrarLoader();
             try {
@@ -420,194 +533,84 @@
             } catch (error) { console.error(error); }
             finally { if (!silencioso) ocultarLoader(); }
         }
-
         function renderizarLista(resultados) {
-            const lista = document.getElementById('listaResultados');
-            lista.innerHTML = '';
-            
+            const lista = document.getElementById('listaResultados'); lista.innerHTML = '';
             if (resultados.length > 0) {
                 resultados.forEach(esc => {
-                    const div = document.createElement('div');
-                    div.className = 'search-item';
-                    
+                    const div = document.createElement('div'); div.className = 'search-item';
                     const badge = esc.status === 'ok' ? '<span class="status-badge ok"><i class="fa-solid fa-check"></i></span>' : '<span class="status-badge fail"><i class="fa-solid fa-link-slash"></i></span>';
                     const upsStr = esc.ups_conectada ? `UPS ${esc.ups_nivel}%` : 'UPS --';
-
                     div.innerHTML = `
                     <div style="display:flex; flex-direction:column;">
                         <span class="search-item-name">${esc.nombre}</span>
                         <span style="font-size:0.65rem; color:#64748b; font-family:monospace; margin-top:2px;">${esc.id}</span>
-                        <span style="font-size:0.65rem; color:#64748b; font-weight:500; margin-top:4px;">
-                            ETH: ${esc.eth_speed} Mbps &nbsp;•&nbsp; WIFI: ${esc.wifi_speed} Mbps &nbsp;•&nbsp; ${upsStr}
-                        </span>
+                        <span style="font-size:0.65rem; color:#64748b; font-weight:500; margin-top:4px;">ETH: ${esc.eth_speed} Mbps &nbsp;•&nbsp; WIFI: ${esc.wifi_speed} Mbps &nbsp;•&nbsp; ${upsStr}</span>
                     </div>${badge}`;
-                    
-                    div.onclick = () => seleccionarEscuela(esc.id);
-                    lista.appendChild(div);
+                    div.onclick = () => seleccionarEscuela(esc.id); lista.appendChild(div);
                 });
                 lista.style.display = 'block';
             } else { lista.innerHTML = '<div style="padding:15px; text-align:center; color:#94a3b8; font-size:0.85rem;">No se encontraron enlaces</div>'; lista.style.display = 'block'; }
         }
-
-        function filtrarLocalmente() {
-            const query = document.getElementById('inputBuscador').value.trim().toLowerCase();
-            document.getElementById('clearSearch').style.display = query.length > 0 ? 'block' : 'none';
-            if (query.length === 0) { renderizarLista(cacheTodosLosEnlaces); return; }
-            const filtrados = cacheTodosLosEnlaces.filter(esc => esc.nombre.toLowerCase().includes(query) || esc.id.toLowerCase().includes(query));
-            renderizarLista(filtrados);
-        }
-
+        function filtrarLocalmente() { const query = document.getElementById('inputBuscador').value.trim().toLowerCase(); document.getElementById('clearSearch').style.display = query.length > 0 ? 'block' : 'none'; if (query.length === 0) { renderizarLista(cacheTodosLosEnlaces); return; } const filtrados = cacheTodosLosEnlaces.filter(esc => esc.nombre.toLowerCase().includes(query) || esc.id.toLowerCase().includes(query)); renderizarLista(filtrados); }
         function limpiarBusqueda() { document.getElementById('inputBuscador').value = ''; document.getElementById('clearSearch').style.display = 'none'; renderizarLista(cacheTodosLosEnlaces); }
         function cerrarDetalle() { document.getElementById('infoEscuela').style.display = 'none'; document.getElementById('listaResultados').style.display = 'block'; document.querySelector('.search-box').style.display = 'block'; }
-
-        // 6. DETALLE DE ENLACE
         async function seleccionarEscuela(idSonda, silencioso = false) {
-            if (!silencioso) mostrarLoader();
-            document.getElementById('listaResultados').style.display = 'none'; document.querySelector('.search-box').style.display = 'none';
+            if (!silencioso) mostrarLoader(); document.getElementById('listaResultados').style.display = 'none'; document.querySelector('.search-box').style.display = 'none';
             try {
-                const response = await fetch(`${API_BASE_URL}/api/mobile/sondas/${idSonda}`);
-                const escuela = await response.json();
-
-                document.getElementById('infoEscuela').style.display = 'block';
-                document.getElementById('escuelaNombre').innerText = escuela.nombre; document.getElementById('escuelaID').innerText = 'ID: ' + escuela.id;
-                
-                const badge = document.getElementById('escuelaBadge');
-                const estadoBg = document.getElementById('estadoIconBg');
-                const estadoCol = document.getElementById('estadoIconColor');
-
-                if(escuela.status === 'ok') { 
-                    badge.className = 'status-badge ok'; badge.innerHTML = '<i class="fa-solid fa-check"></i> Activo'; 
-                    document.getElementById('filtroTxt').innerText = "OK / Activo"; 
-                    estadoBg.style.background = "#16a34a15"; estadoCol.style.color = "#16a34a";
-                } else { 
-                    badge.className = 'status-badge fail'; badge.innerHTML = '<i class="fa-solid fa-link-slash"></i> Falla'; 
-                    document.getElementById('filtroTxt').innerText = "Falla de red"; 
-                    estadoBg.style.background = "#b91c1c15"; estadoCol.style.color = "#b91c1c";
-                }
-
+                const response = await fetch(`${API_BASE_URL}/api/mobile/sondas/${idSonda}`); const escuela = await response.json();
+                document.getElementById('infoEscuela').style.display = 'block'; document.getElementById('escuelaNombre').innerText = escuela.nombre; document.getElementById('escuelaID').innerText = 'ID: ' + escuela.id;
+                const badge = document.getElementById('escuelaBadge'); const estadoBg = document.getElementById('estadoIconBg'); const estadoCol = document.getElementById('estadoIconColor');
+                if(escuela.status === 'ok') { badge.className = 'status-badge ok'; badge.innerHTML = '<i class="fa-solid fa-check"></i> Activo'; document.getElementById('filtroTxt').innerText = "OK / Activo"; estadoBg.style.background = "#16a34a15"; estadoCol.style.color = "#16a34a"; } 
+                else { badge.className = 'status-badge fail'; badge.innerHTML = '<i class="fa-solid fa-link-slash"></i> Falla'; document.getElementById('filtroTxt').innerText = "Falla de red"; estadoBg.style.background = "#b91c1c15"; estadoCol.style.color = "#b91c1c"; }
                 const upsTxt = document.getElementById('upsStatusTxt'); const upsBg = document.getElementById('upsIconBg'); const upsCol = document.getElementById('upsIconColor');
-                if(escuela.ups_conectada) { upsTxt.innerText = "Conectada"; upsTxt.style.color = "#111827"; upsBg.style.background = "#1e3a5f15"; upsCol.style.color = "#1e3a5f"; } 
-                else { upsTxt.innerText = "Desconectada"; upsTxt.style.color = "#b91c1c"; upsBg.style.background = "#b91c1c15"; upsCol.style.color = "#b91c1c"; }
-
+                if(escuela.ups_conectada) { upsTxt.innerText = "Conectada"; upsTxt.style.color = "#111827"; upsBg.style.background = "#1e3a5f15"; upsCol.style.color = "#1e3a5f"; } else { upsTxt.innerText = "Desconectada"; upsTxt.style.color = "#b91c1c"; upsBg.style.background = "#b91c1c15"; upsCol.style.color = "#b91c1c"; }
                 document.getElementById('velPromTxt').innerText = escuela.velocidad_promedio + " Mbps";
-                
-                miGraficaVelocidad.data.datasets[0].data = escuela.historial_eth; 
-                miGraficaVelocidad.data.datasets[0].borderColor = escuela.status === 'ok' ? '#1e3a5f' : '#b91c1c'; 
-                miGraficaVelocidad.data.datasets[1].data = escuela.historial_wifi;
-                miGraficaVelocidad.update();
-            } catch (error) { console.error(error); }
-            finally { if (!silencioso) ocultarLoader(); }
+                miGraficaVelocidad.data.datasets[0].data = escuela.historial_eth; miGraficaVelocidad.data.datasets[0].borderColor = escuela.status === 'ok' ? '#1e3a5f' : '#b91c1c'; miGraficaVelocidad.data.datasets[1].data = escuela.historial_wifi; miGraficaVelocidad.update();
+            } catch (error) {} finally { if (!silencioso) ocultarLoader(); }
         }
-
-        // 7. MAPA Y DIBUJAR PUNTOS
-        function inicializarMapa() {
-            if (!miMapa) {
-                miMapa = L.map('mapa').setView([13.794185, -88.896530], 8);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(miMapa);
-                capaMarcadores = L.layerGroup().addTo(miMapa);
-            }
-            setTimeout(() => miMapa.invalidateSize(), 300);
-            dibujarPuntosMapa();
-        }
-
+        function inicializarMapa() { if (!miMapa) { miMapa = L.map('mapa').setView([13.794185, -88.896530], 8); L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(miMapa); capaMarcadores = L.layerGroup().addTo(miMapa); } setTimeout(() => miMapa.invalidateSize(), 300); dibujarPuntosMapa(); }
         function dibujarPuntosMapa() {
-            if (!capaMarcadores) return;
-            capaMarcadores.clearLayers();
-            
+            if (!capaMarcadores) return; capaMarcadores.clearLayers();
             cacheTodosLosEnlaces.forEach(esc => {
                 if (esc.lat && esc.lon) {
                     let cssClase = '';
-                    
-                    if (esc.eth_speed === 0 && esc.wifi_speed === 0) {
-                        cssClase = 'marker-red';
-                    } else if (esc.ups_nivel > 0 && esc.ups_nivel < 80) {
-                        cssClase = 'marker-yellow-blink';
-                    } else if (esc.eth_speed > 0 && esc.wifi_speed > 0) {
-                        cssClase = 'marker-green-bright';
-                    } else {
-                        cssClase = 'marker-green-soft';
-                    }
-
-                    const iconoPersonalizado = L.divIcon({
-                        className: cssClase,
-                        iconSize: [16, 16],
-                        iconAnchor: [8, 8],
-                        popupAnchor: [0, -10]
-                    });
-
-                    L.marker([esc.lat, esc.lon], {icon: iconoPersonalizado})
-                     .addTo(capaMarcadores)
-                     .bindPopup(`
-                        <div style="font-family: 'Inter', sans-serif;">
-                            <strong style="color: #0a1628;">${esc.nombre}</strong><br>
-                            <span style="font-size: 0.8rem; color: #64748b;">ETH: ${esc.eth_speed} | WIFI: ${esc.wifi_speed}</span><br>
-                            <span style="font-size: 0.8rem; color: #64748b;">UPS: ${esc.ups_conectada ? esc.ups_nivel + '%' : '--'}</span>
-                        </div>
-                     `);
+                    if (esc.eth_speed === 0 && esc.wifi_speed === 0) { cssClase = 'marker-red'; } else if (esc.ups_nivel > 0 && esc.ups_nivel < 80) { cssClase = 'marker-yellow-blink'; } else if (esc.eth_speed > 0 && esc.wifi_speed > 0) { cssClase = 'marker-green-bright'; } else { cssClase = 'marker-green-soft'; }
+                    const iconoPersonalizado = L.divIcon({ className: cssClase, iconSize: [16, 16], iconAnchor: [8, 8], popupAnchor: [0, -10] });
+                    L.marker([esc.lat, esc.lon], {icon: iconoPersonalizado}).addTo(capaMarcadores).bindPopup(`<div style="font-family: 'Inter', sans-serif;"><strong style="color: #0a1628;">${esc.nombre}</strong><br><span style="font-size: 0.8rem; color: #64748b;">ETH: ${esc.eth_speed} | WIFI: ${esc.wifi_speed}</span><br><span style="font-size: 0.8rem; color: #64748b;">UPS: ${esc.ups_conectada ? esc.ups_nivel + '%' : '--'}</span></div>`);
                 }
             });
         }
-
-        // 8. DASHBOARD Y GRAFICAS
         async function obtenerDatosDeAPI(silencioso = false) {
             if (!silencioso) mostrarLoader();
             try {
-                const response = await fetch(`${API_BASE_URL}/api/mobile/resumen`);
-                const data = await response.json();
+                const response = await fetch(`${API_BASE_URL}/api/mobile/resumen`); const data = await response.json();
                 document.getElementById('dashConectadas').textContent = data.sondas_activas.toLocaleString(); document.getElementById('dashCaidas').textContent = data.sondas_caidas.toLocaleString(); document.getElementById('dashTotal').textContent = data.total.toLocaleString();
                 document.getElementById('ethActivos').textContent = data.eth_activos.toLocaleString(); document.getElementById('wifiActivos').textContent = data.wifi_activos.toLocaleString(); document.getElementById('ethCaidos').textContent = data.eth_caidos.toLocaleString(); document.getElementById('wifiCaidos').textContent = data.wifi_caidos.toLocaleString();
                 miGraficaPrincipal.data.datasets[0].data = [data.sondas_activas, data.sondas_caidas]; miGraficaPrincipal.update();
-            } catch (error) {}
-            finally { if (!silencioso) ocultarLoader(); }
+            } catch (error) {} finally { if (!silencioso) ocultarLoader(); }
         }
-
         function inicializarGraficas() {
             if(!miGraficaPrincipal) { const ctxMain = document.getElementById('mainChart').getContext('2d'); miGraficaPrincipal = new Chart(ctxMain, { type: 'doughnut', data: { labels: ['Activos', 'Caídos'], datasets: [{ data: [0, 0], backgroundColor: ['#16a34a', '#b91c1c'], borderWidth: 0, cutout: '82%' }] }, options: { plugins: { legend: { display: false } }, maintainAspectRatio: false } }); }
-            if(!miGraficaVelocidad) { 
-                const ctxSpeed = document.getElementById('speedChart').getContext('2d'); 
-                miGraficaVelocidad = new Chart(ctxSpeed, { 
-                    type: 'line', 
-                    data: { 
-                        labels: Array(50).fill(''), 
-                        datasets: [
-                            { label: 'ETH', data: [], borderColor: '#1e3a5f', borderWidth: 2, tension: 0.1, pointRadius: 0 },
-                            { label: 'WIFI', data: [], borderColor: '#3b82f6', borderWidth: 2, borderDash: [5, 5], tension: 0.1, pointRadius: 0 }
-                        ] 
-                    }, 
-                    options: { 
-                        plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } }, 
-                        scales: { y: { display: true, position: 'right', border:{display:false}, grid:{color:'#f1f5f9'} }, x: { grid: { display: false }, border:{display:false} } }, 
-                        maintainAspectRatio: false 
-                    } 
-                }); 
-            }
+            if(!miGraficaVelocidad) { const ctxSpeed = document.getElementById('speedChart').getContext('2d'); miGraficaVelocidad = new Chart(ctxSpeed, { type: 'line', data: { labels: Array(50).fill(''), datasets: [{ label: 'ETH', data: [], borderColor: '#1e3a5f', borderWidth: 2, tension: 0.1, pointRadius: 0 }, { label: 'WIFI', data: [], borderColor: '#3b82f6', borderWidth: 2, borderDash: [5, 5], tension: 0.1, pointRadius: 0 }] }, options: { plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } }, scales: { y: { display: true, position: 'right', border:{display:false}, grid:{color:'#f1f5f9'} }, x: { grid: { display: false }, border:{display:false} } }, maintainAspectRatio: false } }); }
         }
-        
-        // 9. HEADER Y REFRESH
         async function cerrarSesion() {
             const userIcon = document.querySelector('.fa-circle-user'); userIcon.classList.remove('fa-regular'); userIcon.classList.add('fa-solid', 'fa-spin');
             try { await fetch(`${API_BASE_URL}/api/mobile/logout`, { method: 'POST', credentials: 'include' }); } catch (error) {}
             setTimeout(() => { document.getElementById('login').style.display = 'block'; document.getElementById('main-header').style.display = 'none'; document.getElementById('mainContent').style.display = 'none'; document.getElementById('main-nav').style.display = 'none'; document.getElementById('userInput').value = ''; document.getElementById('passInput').value = ''; userIcon.classList.remove('fa-solid', 'fa-spin'); userIcon.classList.add('fa-regular'); }, 500);
         }
-
         function actualizarPantallaActual(silencioso = false) {
-            const btn = document.getElementById('btnRefresh'); 
-            if(btn && !silencioso) { btn.classList.add('fa-spin'); }
-            
+            const btn = document.getElementById('btnRefresh'); if(btn && !silencioso) { btn.classList.add('fa-spin'); }
             const currentScreen = document.querySelector('.screen.active').id;
             let promise = Promise.resolve();
-            
             if (currentScreen === 'home') promise = obtenerDatosDeAPI(silencioso); 
-            else if (currentScreen === 'search') {
-                if (document.getElementById('infoEscuela').style.display === 'block') { 
-                    const id = document.getElementById('escuelaID').innerText.replace('ID: ', '').trim(); 
-                    promise = seleccionarEscuela(id, silencioso); 
-                } 
-                else { promise = cargarTodosLosEnlaces(silencioso).then(() => renderizarLista(cacheTodosLosEnlaces)); }
-            } else if (currentScreen === 'map-screen') {
-                promise = cargarTodosLosEnlaces(silencioso).then(() => dibujarPuntosMapa());
+            else if (currentScreen === 'search') { if (document.getElementById('infoEscuela').style.display === 'block') { const id = document.getElementById('escuelaID').innerText.replace('ID: ', '').trim(); promise = seleccionarEscuela(id, silencioso); } else { promise = cargarTodosLosEnlaces(silencioso).then(() => renderizarLista(cacheTodosLosEnlaces)); } } 
+            else if (currentScreen === 'map-screen') { promise = cargarTodosLosEnlaces(silencioso).then(() => dibujarPuntosMapa()); }
+            else if (currentScreen === 'tickets-screen') {
+                if (document.getElementById('detalleTicket').style.display === 'block') {
+                    const id = document.getElementById('ticketActualId').value;
+                    promise = cargarTickets(silencioso).then(() => abrirTicket(parseInt(id)));
+                } else { promise = cargarTickets(silencioso); }
             }
-
             promise.finally(() => { if(btn) btn.classList.remove('fa-spin'); });
         }
     </script>
