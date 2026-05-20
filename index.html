@@ -214,8 +214,8 @@
                     <div class="stat-grid">
                         <div class="card stat-card" style="margin:0;">
                             <div class="stat-icon-box">
-                                <div class="stat-icon" style="background: #16a34a15;"><i class="fa-solid fa-shield-halved" style="color: #16a34a; font-size: 0.8rem;"></i></div>
-                                <span class="stat-label">Filtro</span>
+                                <div class="stat-icon" id="estadoIconBg" style="background: #16a34a15;"><i class="fa-solid fa-signal" id="estadoIconColor" style="color: #16a34a; font-size: 0.8rem;"></i></div>
+                                <span class="stat-label">Estado</span>
                             </div>
                             <span class="stat-value" id="filtroTxt" style="color: #111827; font-size: 1.1rem; margin-top: 5px;">OK / Activo</span>
                         </div>
@@ -363,9 +363,18 @@
                 document.getElementById('escuelaNombre').innerText = escuela.nombre; document.getElementById('escuelaID').innerText = 'ID: ' + escuela.id;
                 
                 const badge = document.getElementById('escuelaBadge');
-                if(escuela.status === 'ok') { badge.className = 'status-badge ok'; badge.innerHTML = '<i class="fa-solid fa-check"></i> Activo'; document.getElementById('filtroTxt').innerText = "OK / Activo"; } 
-                else { badge.className = 'status-badge fail'; badge.innerHTML = '<i class="fa-solid fa-link-slash"></i> Falla'; document.getElementById('filtroTxt').innerText = "Falla de red"; }
+                const estadoBg = document.getElementById('estadoIconBg');
+                const estadoCol = document.getElementById('estadoIconColor');
 
+                if(escuela.status === 'ok') { 
+                    badge.className = 'status-badge ok'; badge.innerHTML = '<i class="fa-solid fa-check"></i> Activo'; 
+                    document.getElementById('filtroTxt').innerText = "OK / Activo"; 
+                    estadoBg.style.background = "#16a34a15"; estadoCol.style.color = "#16a34a";
+                } else { 
+                    badge.className = 'status-badge fail'; badge.innerHTML = '<i class="fa-solid fa-link-slash"></i> Falla'; 
+                    document.getElementById('filtroTxt').innerText = "Falla de red"; 
+                    estadoBg.style.background = "#b91c1c15"; estadoCol.style.color = "#b91c1c";
+                }
                 const upsTxt = document.getElementById('upsStatusTxt'); const upsBg = document.getElementById('upsIconBg'); const upsCol = document.getElementById('upsIconColor');
                 if(escuela.ups_conectada) { upsTxt.innerText = "Conectada"; upsTxt.style.color = "#111827"; upsBg.style.background = "#1e3a5f15"; upsCol.style.color = "#1e3a5f"; } 
                 else { upsTxt.innerText = "Desconectada"; upsTxt.style.color = "#b91c1c"; upsBg.style.background = "#b91c1c15"; upsCol.style.color = "#b91c1c"; }
