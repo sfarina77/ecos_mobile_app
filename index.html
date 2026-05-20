@@ -36,7 +36,10 @@
         .screen.active { display: flex; flex-direction: column; animation: fadeIn 0.3s ease; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        /* Pantalla de Carga (Loader) */
+        #loaderOverlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.75); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(3px); }
+        .loader-text { margin-top: 15px; font-weight: 600; color: #1e3a5f; font-size: 0.95rem; letter-spacing: 0.5px; }
+        
         /* Login */
         #login { background-color: #0a1628; height: 100%; width: 100%; position: absolute; z-index: 2000; }
         .login-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: 20px; }
@@ -97,7 +100,10 @@
     </style>
 </head>
 <body>
-
+    <div id="loaderOverlay">
+        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2.5rem; color: #1e3a5f;"></i>
+        <span class="loader-text">Consultando base de datos...</span>
+    </div>
     <div class="app-container">
         
         <div id="login" class="screen active">
@@ -261,6 +267,9 @@
 
         let miGraficaPrincipal, miGraficaVelocidad, miMapa, capaMarcadores;
         let cacheTodosLosEnlaces = [];
+        // Funciones del Reloj Visual
+        function mostrarLoader() { document.getElementById('loaderOverlay').style.display = 'flex'; }
+        function ocultarLoader() { document.getElementById('loaderOverlay').style.display = 'none'; }
 
         // 1. LOGIN
         async function iniciarSesion() {
@@ -283,16 +292,16 @@
                     document.getElementById('mainContent').style.display = 'flex';
                     document.getElementById('main-nav').style.display = 'flex';
                     
-                    // Nos aseguramos de forzar que Global sea la primera pantalla
                     showScreen('home', document.querySelector('.nav-item')); 
                     
                     inicializarGraficas(); obtenerDatosDeAPI(); 
-                    cargarTodosLosEnlaces(); // Precarga silenciosa para el mapa
+                    cargarTodosLosEnlaces(true); // Precarga silenciosa para el mapa sin tapar la pantalla
+                    
+                    // Reloj automático cada 30 segundos (en modo silencioso)
+                    setInterval(() => actualizarPantallaActual(true), 30000);
                 } else { document.getElementById('errorMsg').style.display = 'block'; }
             } catch (error) { document.getElementById('errorMsg').innerText = "Error conectando al servidor"; document.getElementById('errorMsg').style.display = 'block'; } 
             finally { btn.disabled = false; document.getElementById('btnTexto').innerText = "Ingresar"; document.getElementById('btnSpinner').style.display = "none"; }
-            // Iniciar el reloj de actualización automática cada 30 segundos
-                    setInterval(actualizarPantallaActual, 30000);
         }
 
         // 2. NAVEGACIÓN
@@ -308,11 +317,13 @@
         }
 
         // 3. ENLACES Y LISTA
-        async function cargarTodosLosEnlaces() {
+        async function cargarTodosLosEnlaces(silencioso = false) {
+            if (!silencioso) mostrarLoader();
             try {
                 const response = await fetch(`${API_BASE_URL}/api/mobile/sondas/buscar?q=`);
                 cacheTodosLosEnlaces = await response.json();
             } catch (error) { console.error(error); }
+            finally { if (!silencioso) ocultarLoader(); }
         }
 
         function renderizarLista(resultados) {
@@ -355,7 +366,8 @@
         function cerrarDetalle() { document.getElementById('infoEscuela').style.display = 'none'; document.getElementById('listaResultados').style.display = 'block'; document.querySelector('.search-box').style.display = 'block'; }
 
         // 4. DETALLE DE ENLACE
-        async function seleccionarEscuela(idSonda) {
+        async function seleccionarEscuela(idSonda, silencioso = false) {
+            if (!silencioso) mostrarLoader();
             document.getElementById('listaResultados').style.display = 'none'; document.querySelector('.search-box').style.display = 'none';
             try {
                 const response = await fetch(`${API_BASE_URL}/api/mobile/sondas/${idSonda}`);
@@ -384,23 +396,21 @@
 
                 document.getElementById('velPromTxt').innerText = escuela.velocidad_promedio + " Mbps";
                 
-                // INYECTAMOS LOS 50 PUNTOS DE ETH Y WIFI
                 miGraficaVelocidad.data.datasets[0].data = escuela.historial_eth; 
                 miGraficaVelocidad.data.datasets[0].borderColor = escuela.status === 'ok' ? '#1e3a5f' : '#b91c1c'; 
                 miGraficaVelocidad.data.datasets[1].data = escuela.historial_wifi;
                 miGraficaVelocidad.update();
             } catch (error) { console.error(error); }
+            finally { if (!silencioso) ocultarLoader(); }
         }
+
         // 5. INICIALIZAR MAPA Y DIBUJAR PUNTOS
         function inicializarMapa() {
             if (!miMapa) {
-                // Coordenadas centrales de El Salvador
                 miMapa = L.map('mapa').setView([13.794185, -88.896530], 8);
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(miMapa);
                 capaMarcadores = L.layerGroup().addTo(miMapa);
             }
-            
-            // Forzar recálculo del contenedor
             setTimeout(() => miMapa.invalidateSize(), 300);
             dibujarPuntosMapa();
         }
@@ -444,7 +454,8 @@
         }
 
         // 6. DASHBOARD
-        async function obtenerDatosDeAPI() {
+        async function obtenerDatosDeAPI(silencioso = false) {
+            if (!silencioso) mostrarLoader();
             try {
                 const response = await fetch(`${API_BASE_URL}/api/mobile/resumen`);
                 const data = await response.json();
@@ -452,6 +463,7 @@
                 document.getElementById('ethActivos').textContent = data.eth_activos.toLocaleString(); document.getElementById('wifiActivos').textContent = data.wifi_activos.toLocaleString(); document.getElementById('ethCaidos').textContent = data.eth_caidos.toLocaleString(); document.getElementById('wifiCaidos').textContent = data.wifi_caidos.toLocaleString();
                 miGraficaPrincipal.data.datasets[0].data = [data.sondas_activas, data.sondas_caidas]; miGraficaPrincipal.update();
             } catch (error) {}
+            finally { if (!silencioso) ocultarLoader(); }
         }
 
         function inicializarGraficas() {
@@ -461,7 +473,6 @@
                 miGraficaVelocidad = new Chart(ctxSpeed, { 
                     type: 'line', 
                     data: { 
-                        // Creamos 50 espacios vacíos para que la gráfica se dibuje continua y larga
                         labels: Array(50).fill(''), 
                         datasets: [
                             { label: 'ETH', data: [], borderColor: '#1e3a5f', borderWidth: 2, tension: 0.1, pointRadius: 0 },
@@ -476,6 +487,7 @@
                 }); 
             }
         }
+        
         // 7. HEADER FUNCIONES
         async function cerrarSesion() {
             const userIcon = document.querySelector('.fa-circle-user'); userIcon.classList.remove('fa-regular'); userIcon.classList.add('fa-solid', 'fa-spin');
@@ -483,17 +495,26 @@
             setTimeout(() => { document.getElementById('login').style.display = 'block'; document.getElementById('main-header').style.display = 'none'; document.getElementById('mainContent').style.display = 'none'; document.getElementById('main-nav').style.display = 'none'; document.getElementById('userInput').value = ''; document.getElementById('passInput').value = ''; userIcon.classList.remove('fa-solid', 'fa-spin'); userIcon.classList.add('fa-regular'); }, 500);
         }
 
-        function actualizarPantallaActual() {
-            const btn = document.getElementById('btnRefresh'); if(btn) { btn.classList.add('fa-spin'); setTimeout(() => btn.classList.remove('fa-spin'), 1000); }
-            const currentScreen = document.querySelector('.screen.active').id;
+        function actualizarPantallaActual(silencioso = false) {
+            const btn = document.getElementById('btnRefresh'); 
+            if(btn && !silencioso) { btn.classList.add('fa-spin'); }
             
-            if (currentScreen === 'home') obtenerDatosDeAPI(); 
+            const currentScreen = document.querySelector('.screen.active').id;
+            let promise = Promise.resolve();
+            
+            if (currentScreen === 'home') promise = obtenerDatosDeAPI(silencioso); 
             else if (currentScreen === 'search') {
-                if (document.getElementById('infoEscuela').style.display === 'block') { const id = document.getElementById('escuelaID').innerText.replace('ID: ', '').trim(); seleccionarEscuela(id); } 
-                else { cargarTodosLosEnlaces(); setTimeout(() => renderizarLista(cacheTodosLosEnlaces), 500); }
+                if (document.getElementById('infoEscuela').style.display === 'block') { 
+                    const id = document.getElementById('escuelaID').innerText.replace('ID: ', '').trim(); 
+                    promise = seleccionarEscuela(id, silencioso); 
+                } 
+                else { promise = cargarTodosLosEnlaces(silencioso).then(() => renderizarLista(cacheTodosLosEnlaces)); }
             } else if (currentScreen === 'map-screen') {
-                cargarTodosLosEnlaces().then(() => dibujarPuntosMapa());
+                promise = cargarTodosLosEnlaces(silencioso).then(() => dibujarPuntosMapa());
             }
+
+            // Apaga el giro de la flechita superior cuando termina de procesar
+            promise.finally(() => { if(btn) btn.classList.remove('fa-spin'); });
         }
     </script>
 </body>
