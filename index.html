@@ -375,15 +375,20 @@
                     document.getElementById('filtroTxt').innerText = "Falla de red"; 
                     estadoBg.style.background = "#b91c1c15"; estadoCol.style.color = "#b91c1c";
                 }
+
                 const upsTxt = document.getElementById('upsStatusTxt'); const upsBg = document.getElementById('upsIconBg'); const upsCol = document.getElementById('upsIconColor');
                 if(escuela.ups_conectada) { upsTxt.innerText = "Conectada"; upsTxt.style.color = "#111827"; upsBg.style.background = "#1e3a5f15"; upsCol.style.color = "#1e3a5f"; } 
                 else { upsTxt.innerText = "Desconectada"; upsTxt.style.color = "#b91c1c"; upsBg.style.background = "#b91c1c15"; upsCol.style.color = "#b91c1c"; }
 
                 document.getElementById('velPromTxt').innerText = escuela.velocidad_promedio + " Mbps";
-                miGraficaVelocidad.data.datasets[0].data = escuela.historial_velocidad; miGraficaVelocidad.data.datasets[0].borderColor = escuela.status === 'ok' ? '#1e3a5f' : '#b91c1c'; miGraficaVelocidad.update();
+                
+                // INYECTAMOS LOS 50 PUNTOS DE ETH Y WIFI
+                miGraficaVelocidad.data.datasets[0].data = escuela.historial_eth; 
+                miGraficaVelocidad.data.datasets[0].borderColor = escuela.status === 'ok' ? '#1e3a5f' : '#b91c1c'; 
+                miGraficaVelocidad.data.datasets[1].data = escuela.historial_wifi;
+                miGraficaVelocidad.update();
             } catch (error) { console.error(error); }
         }
-
         // 5. INICIALIZAR MAPA Y DIBUJAR PUNTOS
         function inicializarMapa() {
             if (!miMapa) {
@@ -449,9 +454,26 @@
 
         function inicializarGraficas() {
             if(!miGraficaPrincipal) { const ctxMain = document.getElementById('mainChart').getContext('2d'); miGraficaPrincipal = new Chart(ctxMain, { type: 'doughnut', data: { labels: ['Activos', 'Caídos'], datasets: [{ data: [0, 0], backgroundColor: ['#16a34a', '#b91c1c'], borderWidth: 0, cutout: '82%' }] }, options: { plugins: { legend: { display: false } }, maintainAspectRatio: false } }); }
-            if(!miGraficaVelocidad) { const ctxSpeed = document.getElementById('speedChart').getContext('2d'); miGraficaVelocidad = new Chart(ctxSpeed, { type: 'line', data: { labels: ['-5h', '-4h', '-3h', '-2h', '-1h', 'Ahora'], datasets: [{ label: 'Mbps', data: [], borderColor: '#1e3a5f', borderWidth: 2, tension: 0.1, pointRadius: 0 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { display: true, position: 'right', border:{display:false}, grid:{color:'#f1f5f9'} }, x: { grid: { display: false }, border:{display:false} } }, maintainAspectRatio: false } }); }
+            if(!miGraficaVelocidad) { 
+                const ctxSpeed = document.getElementById('speedChart').getContext('2d'); 
+                miGraficaVelocidad = new Chart(ctxSpeed, { 
+                    type: 'line', 
+                    data: { 
+                        // Creamos 50 espacios vacíos para que la gráfica se dibuje continua y larga
+                        labels: Array(50).fill(''), 
+                        datasets: [
+                            { label: 'ETH', data: [], borderColor: '#1e3a5f', borderWidth: 2, tension: 0.1, pointRadius: 0 },
+                            { label: 'WIFI', data: [], borderColor: '#3b82f6', borderWidth: 2, borderDash: [5, 5], tension: 0.1, pointRadius: 0 }
+                        ] 
+                    }, 
+                    options: { 
+                        plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } }, 
+                        scales: { y: { display: true, position: 'right', border:{display:false}, grid:{color:'#f1f5f9'} }, x: { grid: { display: false }, border:{display:false} } }, 
+                        maintainAspectRatio: false 
+                    } 
+                }); 
+            }
         }
-
         // 7. HEADER FUNCIONES
         async function cerrarSesion() {
             const userIcon = document.querySelector('.fa-circle-user'); userIcon.classList.remove('fa-regular'); userIcon.classList.add('fa-solid', 'fa-spin');
