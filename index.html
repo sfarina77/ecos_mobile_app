@@ -264,24 +264,17 @@
             </div>
 
             <div id="tickets-screen" class="screen">
-                <div id="tickets-screen" class="screen">
                 <h2 class="section-title">Tickets de Soporte</h2>
                 <p class="section-subtitle">Bitácora de seguimiento en campo</p>
                 
                 <div class="search-box" id="buscadorTicketsBox">
                     <div class="search-input-wrapper">
                         <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8;"></i>
-                        <input type="text" id="inputBuscadorTickets" placeholder="Buscar escuela, #ID o fecha (ej. 20/05)..." onkeyup="filtrarTicketsLocalmente()">
+                        <input type="text" id="inputBuscadorTickets" placeholder="Buscar escuela, #ID o fecha..." onkeyup="filtrarTicketsLocalmente()">
                         <i class="fa-solid fa-circle-xmark" style="color: #cbd5e1; cursor: pointer; display: none;" id="clearSearchTickets" onclick="limpiarBusquedaTickets()"></i>
                     </div>
                 </div>
 
-                <div id="listaTicketsContenedor" style="display: block;">
-                    <div class="search-results" id="listaTickets" style="display: block; margin-top: 5px;"></div>
-                </div>
-                <h2 class="section-title">Tickets de Soporte</h2>
-                <p class="section-subtitle">Bitácora de seguimiento en campo</p>
-                
                 <div id="listaTicketsContenedor" style="display: block;">
                     <div class="search-results" id="listaTickets" style="display: block; margin-top: 5px;"></div>
                 </div>
@@ -340,7 +333,6 @@
 
         const { startRegistration, startAuthentication } = SimpleWebAuthnBrowser;
 
-        // 1. LOGIN Y NAVEGACIÓN
         async function iniciarSesion() {
             const user = document.getElementById('userInput').value.toLowerCase().trim();
             const pass = document.getElementById('passInput').value;
@@ -380,7 +372,6 @@
             }
         }
 
-        // BIOMETRÍA
         async function registrarBiometria() {
             if (!confirm("¿Deseas habilitar Face ID o Huella para entrar más rápido la próxima vez?")) return;
             try {
@@ -417,7 +408,6 @@
             finally { ocultarLoader(); }
         }
 
-        // 3. TICKETS DE SOPORTE
         async function cargarTickets(silencioso = false) {
             if(!silencioso) mostrarLoader();
             try {
@@ -453,7 +443,6 @@
             } else { lista.innerHTML = '<div style="padding:15px; text-align:center; color:#94a3b8; font-size:0.85rem;">No se encontraron tickets</div>'; }
         }
 
-        // --- FUNCIONES DEL BUSCADOR DE TICKETS ---
         function filtrarTicketsLocalmente() {
             const query = document.getElementById('inputBuscadorTickets').value.trim().toLowerCase();
             document.getElementById('clearSearchTickets').style.display = query.length > 0 ? 'block' : 'none';
@@ -473,6 +462,7 @@
             document.getElementById('clearSearchTickets').style.display = 'none'; 
             renderizarListaTickets(cacheTickets); 
         }
+
         function abrirTicket(id) {
             const tk = cacheTickets.find(t => t.id === id);
             if (!tk) return;
@@ -541,7 +531,6 @@
                     const data = await response.json();
                     input.value = '';
                     
-                    // Inyectar visualmente sin recargar todo
                     const bitacora = document.getElementById('contenedorBitacora');
                     if(bitacora.innerHTML.includes('Sin actualizaciones')) bitacora.innerHTML = '';
                     const nuevoLog = `
@@ -554,14 +543,12 @@
                         </div>`;
                     bitacora.insertAdjacentHTML('afterbegin', nuevoLog);
                     
-                    // Actualizar en caché silenciosamente
                     cargarTickets(true);
                 } else { alert("Error al guardar comentario"); }
             } catch(e) { alert("Error de red"); }
             finally { input.disabled = false; ocultarLoader(); }
         }
 
-        // ENLACES Y DASHBOARD (Sin cambios)
         async function cargarTodosLosEnlaces(silencioso = false) {
             if (!silencioso) mostrarLoader();
             try {
