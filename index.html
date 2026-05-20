@@ -291,6 +291,8 @@
                 } else { document.getElementById('errorMsg').style.display = 'block'; }
             } catch (error) { document.getElementById('errorMsg').innerText = "Error conectando al servidor"; document.getElementById('errorMsg').style.display = 'block'; } 
             finally { btn.disabled = false; document.getElementById('btnTexto').innerText = "Ingresar"; document.getElementById('btnSpinner').style.display = "none"; }
+            // Iniciar el reloj de actualización automática cada 30 segundos
+                    setInterval(actualizarPantallaActual, 30000);
         }
 
         // 2. NAVEGACIÓN
