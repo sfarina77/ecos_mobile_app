@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
 
     <style>
         :root {
@@ -127,6 +128,10 @@
                     <button id="btnIngresar" class="btn-primary" onclick="iniciarSesion()">
                         <span id="btnTexto">Ingresar</span>
                         <i id="btnSpinner" class="fa-solid fa-circle-notch fa-spin" style="display: none;"></i>
+                    </button>
+                    <button id="btnFaceID" class="btn-primary" style="background-color: #f1f5f9; color: #1e3a5f; margin-top: 10px;" onclick="ingresarConBiometria()">
+                        <i class="fa-solid fa-fingerprint" style="font-size: 1.1rem;"></i>
+                        <span>Ingresar con Face ID / Huella</span>
                     </button>
                     
                     <a href="#" class="login-link">¿Olvidaste tu contraseña?</a>
@@ -299,6 +304,7 @@
                     
                     // Reloj automático cada 30 segundos (en modo silencioso)
                     setInterval(() => actualizarPantallaActual(true), 30000);
+                    setTimeout(registrarBiometria, 1000);
                 } else { document.getElementById('errorMsg').style.display = 'block'; }
             } catch (error) { document.getElementById('errorMsg').innerText = "Error conectando al servidor"; document.getElementById('errorMsg').style.display = 'block'; } 
             finally { btn.disabled = false; document.getElementById('btnTexto').innerText = "Ingresar"; document.getElementById('btnSpinner').style.display = "none"; }
@@ -515,6 +521,72 @@
 
             // Apaga el giro de la flechita superior cuando termina de procesar
             promise.finally(() => { if(btn) btn.classList.remove('fa-spin'); });
+        }
+        // --- FUNCIONES BIOMÉTRICAS (FACE ID / HUELLA) ---
+        const { startRegistration, startAuthentication } = SimpleWebAuthnBrowser;
+
+        // Ofrecer registro después de un login exitoso con contraseña
+        async function registrarBiometria() {
+            if (!confirm("¿Deseas habilitar Face ID o Huella para entrar más rápido la próxima vez?")) return;
+            try {
+                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/options`, { method: 'POST' });
+                const opciones = await respOpciones.json();
+                
+                const credencial = await startRegistration(opciones);
+                
+                const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/verify`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(credencial)
+                });
+                
+                if(respVerificar.ok) alert("¡Biometría configurada con éxito!");
+            } catch (error) { console.log("Registro cancelado o fallido", error); }
+        }
+
+        // Entrar usando la huella (Reemplaza el uso de contraseña)
+        async function ingresarConBiometria() {
+            const user = document.getElementById('userInput').value.toLowerCase().trim();
+            if (!user) {
+                document.getElementById('errorMsg').innerText = "Ingresa tu usuario primero para usar Face ID";
+                document.getElementById('errorMsg').style.display = 'block';
+                return;
+            }
+
+            try {
+                mostrarLoader();
+                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/login/options`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: user })
+                });
+                
+                if (!respOpciones.ok) {
+                    ocultarLoader();
+                    document.getElementById('errorMsg').innerText = "Este usuario no tiene Face ID habilitado";
+                    document.getElementById('errorMsg').style.display = 'block';
+                    return;
+                }
+
+                const opciones = await respOpciones.json();
+                ocultarLoader(); // Ocultamos cargador porque el SO mostrará la pantalla de escaneo
+                
+                const credencial = await startAuthentication(opciones);
+                
+                mostrarLoader();
+                const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/login/verify`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(credencial)
+                });
+
+                if (respVerificar.ok) {
+                    document.getElementById('login').style.display = 'none';
+                    document.getElementById('main-header').style.display = 'flex';
+                    document.getElementById('mainContent').style.display = 'flex';
+                    document.getElementById('main-nav').style.display = 'flex';
+                    showScreen('home', document.querySelector('.nav-item')); 
+                    inicializarGraficas(); obtenerDatosDeAPI(); cargarTodosLosEnlaces(true);
+                    setInterval(() => actualizarPantallaActual(true), 30000);
+                } else { throw new Error(); }
+            } catch (error) { 
+                document.getElementById('errorMsg').innerText = "Error validando Face ID / Huella"; 
+                document.getElementById('errorMsg').style.display = 'block'; 
+            } finally { ocultarLoader(); }
         }
     </script>
 </body>
