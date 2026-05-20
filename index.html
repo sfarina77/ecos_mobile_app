@@ -1,299 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ECOS App - Mobile</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.error('Error SW', err));
-            });
-        }
-    </script>
-
-    <style>
-        :root {
-            /* Paleta oficial de ECOS extraída de tu sistema */
-            --ecos-navy: #0a1628;
-            --ecos-navy-light: #0f1d32;
-            --ecos-border: #1e3a5f;
-            --ecos-blue-light: #93c5fd;
-            --ecos-text-muted: #94a3b8;
-            --ecos-bg: #f8fafc;
-            --ecos-card: #ffffff;
-            --success: #16a34a;
-            --danger: #b91c1c;
-            --warning: #f59e0b;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            margin: 0; font-family: 'Inter', sans-serif;
-            background-color: var(--ecos-bg); color: #1e293b;
-            overflow-x: hidden; overscroll-behavior-y: none;
-        }
-
-        .app-container {
-            display: flex; flex-direction: column; height: 100dvh;
-            max-width: 500px; margin: 0 auto; position: relative; background: var(--ecos-bg);
-        }
-
-        /* --- HEADER ESTILO ECOS --- */
-        header {
-            padding: 15px 20px; padding-top: 45px; background: var(--ecos-navy);
-            border-bottom: 1px solid var(--ecos-border); display: none;
-            justify-content: space-between; align-items: center;
-            color: white;
-        }
-        .header-title-box { display: flex; flex-direction: column; }
-        .header-title { font-weight: 700; font-size: 1rem; letter-spacing: 0.05em; line-height: 1.2; text-transform: uppercase; }
-        .header-subtitle { color: var(--ecos-blue-light); font-size: 0.7rem; line-height: 1.2; }
-
-        .content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
-        .screen { display: none; }
-        .screen.active { display: block; animation: fadeIn 0.3s ease; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* ==========================================
-           1. REDISEÑO DE PANTALLA DE LOGIN
-           (Clonando el diseño de la imagen enviada)
-           ========================================== */
-        #login { background-color: var(--ecos-navy); height: 100%; width: 100%; position: absolute; z-index: 2000; }
-        .login-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: 20px; }
-        
-        .login-box {
-            background-color: white;
-            border-radius: 12px;
-            width: 100%;
-            padding: 30px 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            border: 1px solid rgba(30, 58, 95, 0.12); /* Equivalente a #1e3a5f20 */
-        }
-
-        .login-logo-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
-        .login-logo { width: 90px; height: 90px; object-fit: contain; margin-bottom: 5px; }
-        .login-subtitle { font-size: 0.75rem; color: #6b7280; text-align: center; }
-
-        .form-group { margin-bottom: 15px; }
-        .form-label { display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 5px; }
-        .login-input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.9rem; outline: none; transition: 0.2s; }
-        .login-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-        
-        .btn-primary { background-color: #1e3a5f; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; display: flex; justify-content: center; gap: 8px; align-items: center; margin-top: 5px; }
-        .btn-primary:active:not(:disabled) { background-color: #0f1d32; }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .login-link { display: block; text-align: center; font-size: 0.8rem; color: #6b7280; margin-top: 15px; text-decoration: none; }
-        .login-footer { text-align: center; font-size: 0.7rem; color: #9ca3af; margin-top: 25px; }
-
-        /* --- TARJETAS DASHBOARD --- */
-        .section-title { font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 4px; }
-        .section-subtitle { font-size: 0.8rem; color: #6b7280; margin-bottom: 15px; margin-top: 0;}
-        
-        .card { background: var(--ecos-card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-        .stat-card { display: flex; flex-direction: column; gap: 5px; }
-        .stat-icon-box { display: flex; align-items: center; gap: 8px; }
-        .stat-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; justify-content: center; align-items: center; }
-        .stat-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
-        .stat-value { font-size: 1.5rem; font-weight: 700; }
-
-        /* --- BARRA DE BÚSQUEDA --- */
-        .search-box { position: relative; margin-bottom: 20px; }
-        .search-input-wrapper { background: white; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; align-items: center; padding: 10px 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .search-input-wrapper input { border: none; outline: none; width: 100%; font-size: 0.95rem; margin-left: 10px; color: #1e293b; }
-        
-        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 5px; display: none; z-index: 50; overflow: hidden; }
-        .search-item { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .search-item:last-child { border-bottom: none; }
-        .search-item:active { background: #f8fafc; }
-        .search-item-name { font-size: 0.9rem; font-weight: 500; color: #1e293b; }
-        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
-        .status-badge.ok { background: #16a34a15; color: var(--success); }
-        .status-badge.fail { background: #b91c1c15; color: var(--danger); }
-
-        /* --- NAV INFERIOR --- */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 75px;
-            background: var(--ecos-navy); border-top: 1px solid var(--ecos-border);
-            display: none; justify-content: space-around; align-items: center;
-            padding-bottom: env(safe-area-inset-bottom, 10px); z-index: 1000;
-            max-width: 500px; margin: 0 auto;
-        }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--ecos-text-muted); text-decoration: none; font-size: 0.65rem; font-weight: 500; cursor: pointer; transition: 0.2s; gap: 4px; }
-        .nav-item i { font-size: 1.2rem; }
-        .nav-item.active { color: white; }
-    </style>
-</head>
-<body>
-
-    <div class="app-container">
-        
-        <div id="login" class="screen active">
-            <div class="login-container">
-                <div class="login-box">
-                    <div class="login-logo-container">
-                        <img src="https://dashboard.ecos-app.com/_next/image?url=%2Fbrand%2Fecos-logo-256.png&w=256&q=75" alt="ECOS Logo" class="login-logo">
-                        <p class="login-subtitle">Monitoreo de Red Escolar</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="userInput">Usuario</label>
-                        <input type="text" id="userInput" class="login-input" placeholder="nombre_usuario" autocomplete="off">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="passInput">Contraseña</label>
-                        <input type="password" id="passInput" class="login-input" placeholder="••••••••">
-                    </div>
-                    
-                    <button id="btnIngresar" class="btn-primary" onclick="iniciarSesion()">
-                        <span id="btnTexto">Ingresar</span>
-                        <i id="btnSpinner" class="fa-solid fa-circle-notch fa-spin" style="display: none;"></i>
-                    </button>
-                    
-                    <a href="#" class="login-link">¿Olvidaste tu contraseña?</a>
-                    <p id="errorMsg" style="color: var(--danger); text-align: center; margin-top: 15px; display: none; font-size: 0.8rem;">Usuario o contraseña incorrectos</p>
-
-                    <div class="login-footer">
-                        Ministerio de Educación · El Salvador
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <header id="main-header">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <img src="https://dashboard.ecos-app.com/_next/image?url=%2Fbrand%2Fecos-icon-128.png&w=96&q=75" alt="ECOS" style="width: 32px; height: 32px; border-radius: 6px;">
-                <div class="header-title-box">
-                    <span class="header-title">ECOS</span>
-                    <span class="header-subtitle">Ministerio de Educación</span>
-                </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-rotate-right" style="color: var(--ecos-text-muted); font-size: 0.9rem;" onclick="obtenerDatosDeAPI()"></i>
-                <i class="fa-regular fa-circle-user" style="color: var(--ecos-text-muted); font-size: 1.2rem;"></i>
-            </div>
-        </header>
-
-        <div class="content" id="mainContent" style="display:none;">
-            
-            <div id="home" class="screen">
-                <h2 class="section-title">Vista Global</h2>
-                <p class="section-subtitle">Estado de infraestructura a nivel nacional</p>
-                
-                <div class="stat-grid">
-                    <div class="card stat-card">
-                        <div class="stat-icon-box">
-                            <div class="stat-icon" style="background: #16a34a15;"><i class="fa-solid fa-wifi" style="color: var(--success); font-size: 0.8rem;"></i></div>
-                            <span class="stat-label">Sondas Activas</span>
-                        </div>
-                        <span class="stat-value" style="color: var(--success);" id="dashConectadas">0</span>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-icon-box">
-                            <div class="stat-icon" style="background: #b91c1c15;"><i class="fa-solid fa-link-slash" style="color: var(--danger); font-size: 0.8rem;"></i></div>
-                            <span class="stat-label">Sondas Caídas</span>
-                        </div>
-                        <span class="stat-value" style="color: var(--danger);" id="dashCaidas">0</span>
-                    </div>
-                </div>
-
-                <div class="card" style="text-align: center; padding-bottom: 20px;">
-                    <span class="stat-label" style="display: block; margin-bottom: 10px;">Infraestructura de Red</span>
-                    <div style="height: 180px; width: 100%; position: relative;">
-                        <canvas id="mainChart"></canvas>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center;">
-                            <span style="font-size: 1.5rem; font-weight: 700; color: #111827;" id="dashTotal">0</span>
-                            <span style="font-size: 0.6rem; color: #64748b; text-transform: uppercase;">Total</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="search" class="screen">
-                <h2 class="section-title">Filtrar Sonda</h2>
-                <p class="section-subtitle">Búsqueda y estado de dispositivos</p>
-
-                <div class="search-box">
-                    <div class="search-input-wrapper">
-                        <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8;"></i>
-                        <input type="text" id="inputBuscador" placeholder="Ej: Albert Camus..." onkeyup="mostrarSugerencias()" onfocus="mostrarSugerencias()">
-                        <i class="fa-solid fa-circle-xmark" style="color: #cbd5e1; cursor: pointer; display: none;" id="clearSearch" onclick="limpiarBusqueda()"></i>
-                    </div>
-                    
-                    <div class="search-results" id="listaResultados"></div>
-                </div>
-
-                <div id="infoEscuela" style="display: none;">
-                    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h3 id="escuelaNombre" style="margin: 0; font-size: 1.1rem; color: #111827;">C.E. Nombre</h3>
-                            <p id="escuelaID" style="margin: 2px 0 0 0; font-size: 0.75rem; color: #64748b; font-family: monospace;">ID: 0000</p>
-                        </div>
-                        <span id="escuelaBadge" class="status-badge ok"><i class="fa-solid fa-check"></i> Activo</span>
-                    </div>
-
-                    <div class="stat-grid">
-                        <div class="card stat-card" style="margin:0;">
-                            <div class="stat-icon-box">
-                                <div class="stat-icon" style="background: #16a34a15;"><i class="fa-solid fa-shield-halved" style="color: var(--success); font-size: 0.8rem;"></i></div>
-                                <span class="stat-label">Filtro</span>
-                            </div>
-                            <span class="stat-value" style="color: #111827; font-size: 1.1rem; margin-top: 5px;">OK / Activo</span>
-                        </div>
-                        <div class="card stat-card" style="margin:0;">
-                            <div class="stat-icon-box">
-                                <div class="stat-icon" id="upsIconBg" style="background: #1e3a5f15;"><i class="fa-solid fa-battery-half" id="upsIconColor" style="color: var(--ecos-border); font-size: 0.8rem;"></i></div>
-                                <span class="stat-label">UPS</span>
-                            </div>
-                            <span class="stat-value" id="upsStatusTxt" style="color: #111827; font-size: 1.1rem; margin-top: 5px;">Conectada</span>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <span class="stat-label">Velocidad Ethernet Prom.</span>
-                            <span id="velPromTxt" style="font-weight: 700; color: #1e3a5f;">194 Mbps</span>
-                        </div>
-                        <div style="height: 120px;"><canvas id="speedChart"></canvas></div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <nav id="main-nav" class="bottom-nav">
-            <div class="nav-item active" onclick="showScreen('home', this)"><i class="fa-solid fa-chart-pie"></i><span>Global</span></div>
-            <div class="nav-item" onclick="showScreen('search', this)"><i class="fa-solid fa-tower-broadcast"></i><span>Sondas</span></div>
-            <div class="nav-item" onclick="alert('Función de Mapa en desarrollo')"><i class="fa-solid fa-map-location-dot"></i><span>Mapa</span></div>
-            <div class="nav-item" onclick="alert('Función de Alertas en desarrollo')"><i class="fa-solid fa-triangle-exclamation"></i><span>Alertas</span></div>
-        </nav>
-    </div>
-
-    <script>
+// ==========================================
+        // CONFIGURACIÓN DE TU BACKEND (CLOUD RUN)
+        // ==========================================
+        const API_BASE_URL = 'https://tu-servicio-ecos-xxxxxx.a.run.app/api'; 
         let miGraficaPrincipal;
         let miGraficaVelocidad;
 
-        const baseDeDatos = [
-            { id: "1000000073af6fde", nombre: "C.E. Albert Camus", status: "ok", velProm: "194", ups: true, velData: [150, 180, 194, 190, 194, 185] },
-            { id: "1000000084bf9xyz", nombre: "Instituto Nacional San Salvador", status: "fail", velProm: "12", ups: false, velData: [20, 15, 10, 12, 5, 12] },
-            { id: "1000000099cc1abc", nombre: "C.E. Francisco Menendez", status: "ok", velProm: "85", ups: true, velData: [80, 85, 82, 88, 85, 84] }
-        ];
-
-        // 1. LÓGICA DE LOGIN ESTILO WEB ECOS
-        function iniciarSesion() {
-            const user = document.getElementById('userInput').value.toLowerCase();
+        // 1. LÓGICA DE LOGIN REAL
+        async function iniciarSesion() {
+            const user = document.getElementById('userInput').value;
             const pass = document.getElementById('passInput').value;
             const btn = document.getElementById('btnIngresar');
             
@@ -302,30 +16,41 @@
             document.getElementById('btnTexto').innerText = "Verificando...";
             document.getElementById('btnSpinner').style.display = "inline-block";
 
-            setTimeout(() => {
-                if (user === 'admin' && pass === '1234') {
-                    // Si el login es correcto, ocultar contenedor azul gigante
+            try {
+                // Petición real a tu Cloud Run
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Opcional: Guardar token de sesión en localStorage
+                    // localStorage.setItem('ecos_token', data.token);
+
                     document.getElementById('login').style.display = 'none';
-                    
-                    // Mostrar cabecera, contenido interno y footer
                     document.getElementById('main-header').style.display = 'flex';
                     document.getElementById('mainContent').style.display = 'block';
                     document.getElementById('main-nav').style.display = 'flex';
-                    
-                    // Asegurarse de que "home" está activo
                     document.getElementById('home').classList.add('active');
                     
                     inicializarGraficas();
-                    obtenerDatosDeAPI();
+                    obtenerDatosDeAPI(); // Cargar Dashboard
                 } else {
-                    document.getElementById('errorMsg').style.display = 'block';
-                    btn.disabled = false;
-                    document.getElementById('btnTexto').innerText = "Ingresar";
-                    document.getElementById('btnSpinner').style.display = "none";
+                    throw new Error('Credenciales inválidas');
                 }
-            }, 800); 
+            } catch (error) {
+                console.error("Error en login:", error);
+                document.getElementById('errorMsg').style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                document.getElementById('btnTexto').innerText = "Ingresar al Sistema";
+                document.getElementById('btnSpinner').style.display = "none";
+            }
         }
 
+        // 2. CAMBIO DE PANTALLAS
         function showScreen(screenId, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -333,52 +58,90 @@
             if(element) element.classList.add('active');
         }
 
-        // BÚSQUEDA Y GRÁFICAS MANTIENEN SU LÓGICA ANTERIOR (Solo visuales cambian)
-        function mostrarSugerencias() {
-            const query = document.getElementById('inputBuscador').value.toLowerCase();
+        // 3. BUSCADOR REAL (AUTOCOMPLETADO)
+        async function mostrarSugerencias() {
+            const query = document.getElementById('inputBuscador').value;
             const lista = document.getElementById('listaResultados');
             const clearBtn = document.getElementById('clearSearch');
+            
             clearBtn.style.display = query.length > 0 ? 'block' : 'none';
-            if (query.length === 0) { lista.style.display = 'none'; return; }
-            const resultados = baseDeDatos.filter(escuela => escuela.nombre.toLowerCase().includes(query) || escuela.id.includes(query));
-            lista.innerHTML = '';
-            if (resultados.length > 0) {
-                resultados.forEach(esc => {
-                    const div = document.createElement('div');
-                    div.className = 'search-item';
-                    const badge = esc.status === 'ok' ? '<span class="status-badge ok"><i class="fa-solid fa-check"></i></span>' : '<span class="status-badge fail"><i class="fa-solid fa-xmark"></i></span>';
-                    div.innerHTML = `<div style="display:flex; flex-direction:column;"><span class="search-item-name">${esc.nombre}</span><span style="font-size:0.65rem; color:#64748b; font-family:monospace;">${esc.id}</span></div>${badge}`;
-                    div.onclick = () => seleccionarEscuela(esc);
-                    lista.appendChild(div);
-                });
-                lista.style.display = 'block';
-            } else {
-                lista.innerHTML = '<div style="padding:15px; text-align:center; color:#94a3b8; font-size:0.85rem;">No se encontraron sondas</div>';
-                lista.style.display = 'block';
+
+            if (query.length < 3) { // Esperar a que escriba 3 letras para no saturar tu base de datos
+                lista.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/sondas/buscar?q=${query}`);
+                const resultados = await response.json();
+
+                lista.innerHTML = '';
+                
+                if (resultados.length > 0) {
+                    resultados.forEach(esc => {
+                        const div = document.createElement('div');
+                        div.className = 'search-item';
+                        const badge = esc.status === 'ok' ? '<span class="status-badge ok"><i class="fa-solid fa-check"></i></span>' : '<span class="status-badge fail"><i class="fa-solid fa-xmark"></i></span>';
+                        
+                        div.innerHTML = `<div style="display:flex; flex-direction:column;"><span class="search-item-name">${esc.nombre}</span><span style="font-size:0.65rem; color:#64748b; font-family:monospace;">${esc.id}</span></div>${badge}`;
+                        div.onclick = () => obtenerDetalleEscuela(esc.id);
+                        lista.appendChild(div);
+                    });
+                    lista.style.display = 'block';
+                } else {
+                    lista.innerHTML = '<div style="padding:15px; text-align:center; color:#94a3b8; font-size:0.85rem;">No se encontraron sondas</div>';
+                    lista.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Error buscando sondas:", error);
             }
         }
 
-        function seleccionarEscuela(escuela) {
+        // 4. OBTENER DETALLE DE UNA ESCUELA (Al seleccionarla)
+        async function obtenerDetalleEscuela(idSonda) {
             document.getElementById('listaResultados').style.display = 'none';
-            document.getElementById('inputBuscador').value = escuela.nombre;
-            document.getElementById('infoEscuela').style.display = 'block';
-            document.getElementById('escuelaNombre').innerText = escuela.nombre;
-            document.getElementById('escuelaID').innerText = 'ID: ' + escuela.id;
-            const badge = document.getElementById('escuelaBadge');
-            if(escuela.status === 'ok') { badge.className = 'status-badge ok'; badge.innerHTML = '<i class="fa-solid fa-circle"></i> Activo'; } else { badge.className = 'status-badge fail'; badge.innerHTML = '<i class="fa-solid fa-circle"></i> Falla'; }
-            const upsTxt = document.getElementById('upsStatusTxt');
-            const upsBg = document.getElementById('upsIconBg');
-            const upsCol = document.getElementById('upsIconColor');
-            if(escuela.ups) { upsTxt.innerText = "Conectada"; upsTxt.style.color = "#111827"; upsBg.style.background = "#1e3a5f15"; upsCol.style.color = "#1e3a5f"; } else { upsTxt.innerText = "No conectada"; upsTxt.style.color = "#b91c1c"; upsBg.style.background = "#b91c1c15"; upsCol.style.color = "#b91c1c"; }
-            document.getElementById('velPromTxt').innerText = escuela.velProm + " Mbps";
-            miGraficaVelocidad.data.datasets[0].data = escuela.velData;
-            miGraficaVelocidad.data.datasets[0].borderColor = escuela.status === 'ok' ? '#1e3a5f' : '#b91c1c';
-            miGraficaVelocidad.update();
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/sondas/${idSonda}`);
+                const escuela = await response.json();
+
+                document.getElementById('inputBuscador').value = escuela.nombre;
+                document.getElementById('infoEscuela').style.display = 'block';
+                
+                document.getElementById('escuelaNombre').innerText = escuela.nombre;
+                document.getElementById('escuelaID').innerText = 'ID: ' + escuela.id;
+                
+                const badge = document.getElementById('escuelaBadge');
+                if(escuela.status === 'ok') { 
+                    badge.className = 'status-badge ok'; badge.innerHTML = '<i class="fa-solid fa-circle"></i> Activo'; 
+                } else { 
+                    badge.className = 'status-badge fail'; badge.innerHTML = '<i class="fa-solid fa-circle"></i> Falla'; 
+                }
+
+                const upsTxt = document.getElementById('upsStatusTxt');
+                const upsBg = document.getElementById('upsIconBg');
+                const upsCol = document.getElementById('upsIconColor');
+                
+                if(escuela.ups_conectada) { 
+                    upsTxt.innerText = "Conectada"; upsTxt.style.color = "#111827"; upsBg.style.background = "#1e3a5f15"; upsCol.style.color = "#1e3a5f"; 
+                } else { 
+                    upsTxt.innerText = "No conectada"; upsTxt.style.color = "#b91c1c"; upsBg.style.background = "#b91c1c15"; upsCol.style.color = "#b91c1c"; 
+                }
+
+                document.getElementById('velPromTxt').innerText = escuela.velocidad_promedio + " Mbps";
+                miGraficaVelocidad.data.datasets[0].data = escuela.historial_velocidad;
+                miGraficaVelocidad.data.datasets[0].borderColor = escuela.status === 'ok' ? '#1e3a5f' : '#b91c1c';
+                miGraficaVelocidad.update();
+
+            } catch (error) {
+                console.error("Error obteniendo detalle:", error);
+            }
         }
 
         function limpiarBusqueda() { document.getElementById('inputBuscador').value = ''; document.getElementById('listaResultados').style.display = 'none'; document.getElementById('clearSearch').style.display = 'none'; document.getElementById('infoEscuela').style.display = 'none'; document.getElementById('inputBuscador').focus(); }
         document.addEventListener('click', function(event) { const searchBox = document.querySelector('.search-box'); if (!searchBox.contains(event.target)) { document.getElementById('listaResultados').style.display = 'none'; } });
 
+        // 5. INICIALIZAR GRÁFICAS
         function inicializarGraficas() {
             if(!miGraficaPrincipal) {
                 const ctxMain = document.getElementById('mainChart').getContext('2d');
@@ -390,13 +153,19 @@
             }
         }
 
-        function obtenerDatosDeAPI() {
-            document.getElementById('dashConectadas').textContent = "5,120";
-            document.getElementById('dashCaidas').textContent = "124";
-            document.getElementById('dashTotal').textContent = "5,244";
-            miGraficaPrincipal.data.datasets[0].data = [5120, 124];
-            miGraficaPrincipal.update();
+        // 6. OBTENER DATOS DEL DASHBOARD PRINCIPAL
+        async function obtenerDatosDeAPI() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/resumen`);
+                const data = await response.json();
+
+                document.getElementById('dashConectadas').textContent = data.sondas_activas.toLocaleString();
+                document.getElementById('dashCaidas').textContent = data.sondas_caidas.toLocaleString();
+                document.getElementById('dashTotal').textContent = data.total.toLocaleString();
+                
+                miGraficaPrincipal.data.datasets[0].data = [data.sondas_activas, data.sondas_caidas];
+                miGraficaPrincipal.update();
+            } catch (error) {
+                console.error("Error obteniendo dashboard:", error);
+            }
         }
-    </script>
-</body>
-</html>
