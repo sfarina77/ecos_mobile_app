@@ -264,6 +264,21 @@
             </div>
 
             <div id="tickets-screen" class="screen">
+                <div id="tickets-screen" class="screen">
+                <h2 class="section-title">Tickets de Soporte</h2>
+                <p class="section-subtitle">Bitácora de seguimiento en campo</p>
+                
+                <div class="search-box" id="buscadorTicketsBox">
+                    <div class="search-input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8;"></i>
+                        <input type="text" id="inputBuscadorTickets" placeholder="Buscar escuela, #ID o fecha (ej. 20/05)..." onkeyup="filtrarTicketsLocalmente()">
+                        <i class="fa-solid fa-circle-xmark" style="color: #cbd5e1; cursor: pointer; display: none;" id="clearSearchTickets" onclick="limpiarBusquedaTickets()"></i>
+                    </div>
+                </div>
+
+                <div id="listaTicketsContenedor" style="display: block;">
+                    <div class="search-results" id="listaTickets" style="display: block; margin-top: 5px;"></div>
+                </div>
                 <h2 class="section-title">Tickets de Soporte</h2>
                 <p class="section-subtitle">Bitácora de seguimiento en campo</p>
                 
@@ -413,10 +428,10 @@
             finally { if(!silencioso) ocultarLoader(); }
         }
 
-        function renderizarListaTickets() {
+        function renderizarListaTickets(resultados = cacheTickets) {
             const lista = document.getElementById('listaTickets'); lista.innerHTML = '';
-            if (cacheTickets.length > 0) {
-                cacheTickets.forEach(tk => {
+            if (resultados.length > 0) {
+                resultados.forEach(tk => {
                     const div = document.createElement('div'); div.className = 'search-item';
                     const isAbierto = tk.estado === 'ABIERTO';
                     const badgeClass = isAbierto ? 'fail' : 'ok';
@@ -435,14 +450,35 @@
                     div.onclick = () => abrirTicket(tk.id);
                     lista.appendChild(div);
                 });
-            } else { lista.innerHTML = '<div style="padding:15px; text-align:center; color:#94a3b8; font-size:0.85rem;">No hay tickets registrados</div>'; }
+            } else { lista.innerHTML = '<div style="padding:15px; text-align:center; color:#94a3b8; font-size:0.85rem;">No se encontraron tickets</div>'; }
         }
 
+        // --- FUNCIONES DEL BUSCADOR DE TICKETS ---
+        function filtrarTicketsLocalmente() {
+            const query = document.getElementById('inputBuscadorTickets').value.trim().toLowerCase();
+            document.getElementById('clearSearchTickets').style.display = query.length > 0 ? 'block' : 'none';
+            if (query.length === 0) { renderizarListaTickets(cacheTickets); return; }
+            
+            const filtrados = cacheTickets.filter(tk => 
+                tk.escuela.toLowerCase().includes(query) || 
+                tk.id.toString().includes(query) ||
+                tk.apertura.toLowerCase().includes(query) ||
+                tk.falla.toLowerCase().includes(query)
+            );
+            renderizarListaTickets(filtrados);
+        }
+
+        function limpiarBusquedaTickets() { 
+            document.getElementById('inputBuscadorTickets').value = ''; 
+            document.getElementById('clearSearchTickets').style.display = 'none'; 
+            renderizarListaTickets(cacheTickets); 
+        }
         function abrirTicket(id) {
             const tk = cacheTickets.find(t => t.id === id);
             if (!tk) return;
             
             document.getElementById('listaTicketsContenedor').style.display = 'none';
+            document.getElementById('buscadorTicketsBox').style.display = 'none';
             document.getElementById('detalleTicket').style.display = 'block';
             
             document.getElementById('detTicketEscuela').innerText = tk.escuela;
@@ -483,6 +519,7 @@
         function cerrarDetalleTicket() {
             document.getElementById('detalleTicket').style.display = 'none';
             document.getElementById('listaTicketsContenedor').style.display = 'block';
+            document.getElementById('buscadorTicketsBox').style.display = 'block';
         }
 
         async function guardarComentarioTicket() {
