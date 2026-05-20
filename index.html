@@ -351,11 +351,28 @@
                 resultados.forEach(esc => {
                     const div = document.createElement('div');
                     div.className = 'search-item';
-                    const badge = esc.status === 'ok' ? '<span class="status-badge ok"><i class="fa-solid fa-check"></i></span>' : '<span class="status-badge fail"><i class="fa-solid fa-link-slash"></i> Falla</span>';
                     
-                    const velocidad = esc.status === 'ok' ? `${esc.eth_speed} Mbps` : 'Sin conexión';
+                    // El icono de la derecha (Check verde o X roja)
+                    const badge = esc.status === 'ok' 
+                        ? '<span class="status-badge ok"><i class="fa-solid fa-check"></i></span>' 
+                        : '<span class="status-badge fail"><i class="fa-solid fa-link-slash"></i></span>';
+                    
+                    // Lógica para mostrar la UPS o los guiones si está desconectada
+                    const upsStr = esc.ups_conectada ? `UPS ${esc.ups_nivel}%` : 'UPS --';
 
-                    div.innerHTML = `<div style="display:flex; flex-direction:column;"><span class="search-item-name">${esc.nombre}</span><span style="font-size:0.65rem; color:#64748b; font-family:monospace; margin-top:2px;">${esc.id} &nbsp;•&nbsp; ETH: ${velocidad}</span></div>${badge}`;
+                    // Se inyecta el HTML de la tarjeta
+                    div.innerHTML = `
+                    <div style="display:flex; flex-direction:column;">
+                        <span class="search-item-name">${esc.nombre}</span>
+                        <span style="font-size:0.65rem; color:#64748b; font-family:monospace; margin-top:2px;">
+                            ${esc.id}
+                        </span>
+                        <span style="font-size:0.65rem; color:#64748b; font-weight:500; margin-top:4px;">
+                            ETH: ${esc.eth_speed} Mbps &nbsp;•&nbsp; WIFI: ${esc.wifi_speed} Mbps &nbsp;•&nbsp; ${upsStr}
+                        </span>
+                    </div>
+                    ${badge}`;
+                    
                     div.onclick = () => seleccionarEscuela(esc.id);
                     lista.appendChild(div);
                 });
@@ -365,7 +382,7 @@
                 lista.style.display = 'block';
             }
         }
-
+        
         function filtrarLocalmente() {
             const query = document.getElementById('inputBuscador').value.trim().toLowerCase();
             document.getElementById('clearSearch').style.display = query.length > 0 ? 'block' : 'none';
