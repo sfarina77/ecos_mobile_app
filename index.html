@@ -252,6 +252,11 @@
                         </div>
                         <div style="height: 120px;"><canvas id="speedChart"></canvas></div>
                     </div>
+                    <div class="card" style="margin-top: 12px;">
+                        <span class="stat-label" style="display: block; margin-bottom: 10px;">Servicios y Firewall</span>
+                        <div id="contenedorServiciosWeb" style="display: flex; flex-direction: column; gap: 8px;">
+                            </div>
+                    </div>
                 </div>
             </div>
 
@@ -590,6 +595,32 @@
                 if(escuela.ups_conectada) { upsTxt.innerText = "Conectada"; upsTxt.style.color = "#111827"; upsBg.style.background = "#1e3a5f15"; upsCol.style.color = "#1e3a5f"; } else { upsTxt.innerText = "Desconectada"; upsTxt.style.color = "#b91c1c"; upsBg.style.background = "#b91c1c15"; upsCol.style.color = "#b91c1c"; }
                 document.getElementById('velPromTxt').innerText = escuela.velocidad_promedio + " Mbps";
                 miGraficaVelocidad.data.datasets[0].data = escuela.historial_eth; miGraficaVelocidad.data.datasets[0].borderColor = escuela.status === 'ok' ? '#1e3a5f' : '#b91c1c'; miGraficaVelocidad.data.datasets[1].data = escuela.historial_wifi; miGraficaVelocidad.update();
+                // INYECTAR ESTADOS WEB / FIREWALL
+                const contenedorWeb = document.getElementById('contenedorServiciosWeb');
+                contenedorWeb.innerHTML = '';
+                
+                if (escuela.servicios_web && escuela.servicios_web.length > 0) {
+                    escuela.servicios_web.forEach(srv => {
+                        // Verificamos estados positivos comunes en bases de datos
+                        const isOk = srv.estado === 'OK' || srv.estado === 'UP' || srv.estado === '1' || srv.estado === 'TRUE' || srv.estado === 'ACCESIBLE';
+                        const badgeHtml = isOk 
+                            ? '<span class="status-badge ok" style="padding: 2px 6px; font-size: 0.6rem;"><i class="fa-solid fa-check"></i> OK</span>' 
+                            : '<span class="status-badge fail" style="padding: 2px 6px; font-size: 0.6rem;"><i class="fa-solid fa-xmark"></i> FAIL</span>';
+                        
+                        contenedorWeb.innerHTML += `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;">
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 0.8rem; font-weight: 600; color: #1e293b;">${srv.sitio}</span>
+                                    <span style="font-size: 0.65rem; color: #64748b;">${srv.latencia} ms • Vía ${srv.interfaz}</span>
+                                </div>
+                                ${badgeHtml}
+                            </div>
+                        `;
+                    });
+                    if(contenedorWeb.lastElementChild) contenedorWeb.lastElementChild.style.borderBottom = 'none';
+                } else {
+                    contenedorWeb.innerHTML = '<span style="font-size: 0.75rem; color: #94a3b8; text-align: center; display: block; padding: 10px 0;">No hay escaneos recientes del Firewall</span>';
+                }
             } catch (error) {} finally { if (!silencioso) ocultarLoader(); }
         }
         function inicializarMapa() { if (!miMapa) { miMapa = L.map('mapa').setView([13.794185, -88.896530], 8); L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(miMapa); capaMarcadores = L.layerGroup().addTo(miMapa); } setTimeout(() => miMapa.invalidateSize(), 300); dibujarPuntosMapa(); }
