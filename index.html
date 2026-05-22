@@ -731,11 +731,11 @@ async function activarNotificacionesPush() {
             console.log("Suscripción generada con éxito:", JSON.stringify(suscripcion));
 
             // 4. Enviamos el token real a tu API Móvil en Cloud Run
-            // Recuperamos el ID guardado por seguridad
-            const userIdFijo = localStorage.getItem('ecos_user_id') || 1; // Coloca tu ID de usuario de la BD (ej: 1) de respaldo si pruebas con sesión activa
+            // FORZADO EXPLICITO: Usamos el ID 5 que corresponde a tu cuenta salvador_farina@yahoo.com
+            const userIdFijo = 5; 
 
             const payloadSuscripcion = {
-                user_id: parseInt(userIdFijo),
+                user_id: userIdFijo,
                 token: suscripcion
             };
 
