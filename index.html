@@ -360,7 +360,16 @@
                 });
 
                 if (response.ok) {
-                    document.getElementById('login').style.display = 'none'; document.getElementById('main-header').style.display = 'flex'; document.getElementById('mainContent').style.display = 'flex'; document.getElementById('main-nav').style.display = 'flex';
+                    const data = await response.json();
+                    // Guardamos el ID de usuario en la memoria del navegador para asegurar los Push
+                    if (data.user_id) localStorage.setItem('ecos_user_id', data.user_id);
+    
+                    document.getElementById('login').style.display = 'none'; 
+                    document.getElementById('main-header').style.display = 'flex'; 
+                    document.getElementById('mainContent').style.display = 'flex'; 
+                    document.getElementById('main-nav').style.display = 'flex';
+                    
+                    // document.getElementById('login').style.display = 'none'; document.getElementById('main-header').style.display = 'flex'; document.getElementById('mainContent').style.display = 'flex'; document.getElementById('main-nav').style.display = 'flex';
                     showScreen('home', document.querySelector('.nav-item')); 
                     inicializarGraficas(); obtenerDatosDeAPI(); cargarTodosLosEnlaces(true);
                     setInterval(() => actualizarPantallaActual(true), 30000);
@@ -722,13 +731,21 @@ async function activarNotificacionesPush() {
             console.log("Suscripción generada con éxito:", JSON.stringify(suscripcion));
 
             // 4. Enviamos el token real a tu API Móvil en Cloud Run
+            // Recuperamos el ID guardado por seguridad
+            const userIdFijo = localStorage.getItem('ecos_user_id') || 1; // Coloca tu ID de usuario de la BD (ej: 1) de respaldo si pruebas con sesión activa
+
+            const payloadSuscripcion = {
+                user_id: parseInt(userIdFijo),
+                token: suscripcion
+            };
+
             const response = await fetch(`${API_BASE_URL}/api/mobile/push/subscribe`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify(suscripcion)
+                body: JSON.stringify(payloadSuscripcion)
             });
-
+            
             if (response.ok) {
                 alert('¡Notificaciones Push vinculadas con éxito en este iPhone!');
                 if(document.getElementById('cardNotificacionesPush')) {
