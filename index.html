@@ -434,9 +434,11 @@
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
             credentials: 'include', 
-            body: JSON.stringify(credencial)
+            body: JSON.stringify({
+                credencial: credencial, // Enviamos el objeto WebAuthn original
+                user_id: parseInt(userId) // <-- Pasamos el ID explícito
+            })
         });
-
         if (respVerificar.ok) {
             // Confirmamos el anclaje local para que no sufra desajustes posteriores
             localStorage.setItem('ecos_user_id', userId);
