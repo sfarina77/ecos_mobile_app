@@ -676,6 +676,7 @@
             promise.finally(() => { if(btn) btn.classList.remove('fa-spin'); });
         }
 // Función auxiliar indispensable para que iOS entienda la llave criptográfica
+// Función conversora universal para llaves criptográficas VAPID
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
@@ -689,32 +690,38 @@ function urlBase64ToUint8Array(base64String) {
 
 async function activarNotificacionesPush() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        alert('Este entorno no soporta notificaciones nativas.');
+        alert('Este dispositivo o contenedor web no soporta notificaciones nativas.');
         return;
     }
 
     try {
         mostrarLoader();
-        
-        // 1. Aseguramos el Service Worker
-        const registro = await navigator.serviceWorker.ready;
-        console.log('Service Worker listo para suscripción.');
+        document.querySelector('.loader-text').innerText = "Activando alertas Push...";
 
-        // 2. Solicitamos el permiso nativo
+        // 1. Obtenemos el registro actual del Service Worker sin congelar la pantalla con .ready
+        const registro = await navigator.serviceWorker.register('/sw.js');
+        
+        // Esperamos un milisegundo a que se estabilice el canal
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // 2. Solicitamos el permiso nativo al iPhone
         const permiso = await Notification.requestPermission();
+        console.log("Estado del permiso solicitado:", permiso);
         
         if (permiso === 'granted') {
             // Llave pública formateada bajo el estándar estricto P-256
             const vapidPublicKey = 'BEl62OhSg86IGX9W2pZ58mEGwS9_X1Z_p-qPnmK-pB6HwR-Nl4p6Ww7V8w7w8v8w';
             const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
 
-            // 3. Generamos la suscripción con la llave ya convertida a binario
+            // 3. Suscribimos el dispositivo al gestor de Apple
             const suscripcion = await registro.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: convertedKey
             });
 
-            // 4. Enviamos el token real a tu API Móvil
+            console.log("Suscripción generada con éxito:", JSON.stringify(suscripcion));
+
+            // 4. Enviamos el token real a tu API Móvil en Cloud Run
             const response = await fetch(`${API_BASE_URL}/api/mobile/push/subscribe`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -723,23 +730,26 @@ async function activarNotificacionesPush() {
             });
 
             if (response.ok) {
-                alert('¡Notificaciones Push vinculadas con éxito!');
+                alert('¡Notificaciones Push vinculadas con éxito en este iPhone!');
                 if(document.getElementById('cardNotificacionesPush')) {
                     document.getElementById('cardNotificacionesPush').style.display = 'none';
                 }
             } else {
-                alert('El backend rechazó el token.');
+                const errData = await response.json().catch(() => ({}));
+                alert('La API rechazó el token: ' + (errData.error || response.statusText));
             }
         } else {
-            alert('Permiso denegado por el usuario.');
+            alert('No se concedieron los permisos. Actívalos manualmente en los Ajustes del iPhone.');
         }
     } catch (error) {
-        alert('Error al activar: ' + error.message);
+        alert('Error crítico en el flujo Push: ' + error.message);
         console.error(error);
     } finally {
+        // Garantizamos que pase lo que pase, el loader se oculte y libere tu pantalla
         ocultarLoader();
+        document.querySelector('.loader-text').innerText = "Consultando base de datos...";
     }
 }
-    </script>
+</script>
 </body>
 </html>
