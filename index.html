@@ -325,6 +325,12 @@
             <div class="nav-item" onclick="showScreen('tickets-screen', this)"><i class="fa-solid fa-clipboard-list"></i><span>Tickets</span></div>
         </nav>
     </div>
+    <div class="card" id="cardNotificacionesPush" style="text-align: center; padding: 15px; border: 1px dashed #1e3a5f;">
+        <span class="stat-label" style="display: block; margin-bottom: 8px;">Alertas en Tiempo Real</span>
+        <button class="btn-primary" style="background-color: #16a34a; margin: 0 auto; max-width: 250px;" onclick="activarNotificacionesPush()">
+            <i class="fa-solid fa-bell"></i> Activar Alertas Push
+        </button>
+    </div>
 
     <script>
         const API_BASE_URL = 'https://ecos-api-mobile-743427305494.us-central1.run.app';
@@ -668,60 +674,50 @@
             }
             promise.finally(() => { if(btn) btn.classList.remove('fa-spin'); });
         }
-        // --- ACTIVACIÓN NATIVA DE NOTIFICACIONES PUSH PARA ECOS (iOS / Android) ---
 async function activarNotificacionesPush() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        console.log('Este navegador o contenedor emulado no soporta Notificaciones Push.');
+        alert('Este entorno no soporta notificaciones nativas.');
         return;
     }
 
     try {
-        // 1. Registramos el Service Worker obligatorio para el fondo del iPhone
+        mostrarLoader();
+        // 1. Registramos el Service Worker obligatorio
         const registro = await navigator.serviceWorker.register('/sw.js');
-        console.log('Service Worker de ECOS registrado.');
+        console.log('Service Worker de ECOS activo.');
 
-        // 2. Invocamos el cartel nativo de Apple / Google
+        // 2. Invocamos el permiso (Al venir de un click real, iOS NO lo puede bloquear)
         const permiso = await Notification.requestPermission();
-        if (permiso !== 'granted') {
-            alert('Bloqueaste las notificaciones. Actívalas en los Ajustes del iPhone.');
-            return;
-        }
+        
+        if (permiso === 'granted') {
+            // 3. Generamos la suscripción nativa WebPush
+            const suscripcion = await registro.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: 'BEl62OhSg86IGX9W2pZ58mEGwS9_X1Z_p-qPnmK-pB6HwR-Nl4p6Ww7V8w7w8v8w'
+            });
 
-        // 3. Generamos la suscripción nativa del navegador (WebPush)
-        // Usamos una clave pública estándar de identificación
-        const suscripcion = await registro.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: 'BEl62OhSg86IGX9W2pZ58mEGwS9_X1Z_p-qPnmK-pB6HwR-Nl4p6Ww7V8w7w8v8w'
-        });
+            // 4. Enviamos el token directo a tu API Móvil para asociarlo a tu usuario
+            const response = await fetch(`${API_BASE_URL}/api/mobile/push/subscribe`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(suscripcion)
+            });
 
-        // 4. Enviamos el token directo a tu API Móvil para guardarlo en la base de datos
-        const response = await fetch(`${API_BASE_URL}/api/mobile/push/subscribe`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify(suscripcion)
-        });
-
-        if (response.ok) {
-            alert('¡Notificaciones Push vinculadas con éxito en este iPhone!');
+            if (response.ok) {
+                alert('¡Notificaciones Push vinculadas con éxito!');
+                document.getElementById('cardNotificacionesPush').style.display = 'none'; // Escondemos el botón
+            }
+        } else {
+            alert('Permiso denegado. Si cambias de opinión, actívalo en los Ajustes del iPhone.');
         }
     } catch (error) {
-        console.error('Error registrando Push en el dispositivo:', error);
+        alert('Error al activar: ' + error.message);
+        console.error(error);
+    } finally {
+        ocultarLoader();
     }
 }
-
-// Forzamos la ejecución de la petición de alertas 2 segundos después de que el usuario loguea con éxito
-const originalIniciarSesion = iniciarSesion;
-iniciarSesion = async function() {
-    await originalIniciarSesion();
-    setTimeout(activarNotificacionesPush, 2000);
-};
-
-const originalIngresarBiometria = ingresarConBiometria;
-ingresarConBiometria = async function() {
-    await originalIngresarBiometria();
-    setTimeout(activarNotificacionesPush, 2000);
-};
     </script>
 </body>
 </html>
