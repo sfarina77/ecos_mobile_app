@@ -394,19 +394,39 @@
         }
 
         async function registrarBiometria() {
+            // 1. Rescatamos el ID del usuario que se acaba de loguear
+            const userId = localStorage.getItem('ecos_user_id');
+            if (!userId) return; // Si no hay usuario en memoria, no hacemos nada
+
             if (!confirm("¿Deseas habilitar Face ID o Huella para entrar más rápido la próxima vez?")) return;
+    
             try {
-                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/options`, { method: 'POST', credentials: 'include' });
+                // 2. Le mandamos el ID al backend para que sepa de quién es la biometría
+                const respOpciones = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/options`, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ user_id: parseInt(userId) }) // <--- TOQUE CRUCIAL
+                });
+        
                 if (!respOpciones.ok) throw new Error("Fallo al pedir opciones");
                 const opciones = await respOpciones.json();
                 const credencial = await startRegistration(opciones);
+        
+                // 3. Verificamos y guardamos la credencial biométrica en PostgreSQL
                 const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/register/verify`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(credencial)
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    credentials: 'include', 
+                    body: JSON.stringify(credencial)
                 });
+        
                 if(respVerificar.ok) alert("¡Biometría configurada con éxito!");
-            } catch (error) { console.log(error); }
-        }
-
+            } catch (error) {     
+                console.log(error); 
+            }
+        }        
+        
         async function ingresarConBiometria() {
             const user = document.getElementById('userInput').value.toLowerCase().trim();
             if (!user) { document.getElementById('errorMsg').innerText = "Primero escribe tu usuario arriba"; document.getElementById('errorMsg').style.display = 'block'; return; }
@@ -420,6 +440,10 @@
                 mostrarLoader();
                 const respVerificar = await fetch(`${API_BASE_URL}/api/mobile/webauthn/login/verify`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(credencial) });
                 if (respVerificar.ok) {
+                    // Al entrar con biometría exitosa, nos aseguramos de capturar el ID si el endpoint lo devuelve
+                    const data = await respVerificar.json().catch(() => ({}));
+                    if (data.user_id) localStorage.setItem('ecos_user_id', data.user_id);
+
                     document.getElementById('login').style.display = 'none'; document.getElementById('main-header').style.display = 'flex'; document.getElementById('mainContent').style.display = 'flex'; document.getElementById('main-nav').style.display = 'flex';
                     showScreen('home', document.querySelector('.nav-item')); 
                     inicializarGraficas(); obtenerDatosDeAPI(); cargarTodosLosEnlaces(true);
@@ -731,11 +755,16 @@ async function activarNotificacionesPush() {
             console.log("Suscripción generada con éxito:", JSON.stringify(suscripcion));
 
             // 4. Enviamos el token real a tu API Móvil en Cloud Run
-            // FORZADO EXPLICITO: Usamos el ID 5 que corresponde a tu cuenta salvador_farina@yahoo.com
+            // Leemos dinámicamente el ID del usuario que tiene la sesión activa
             const userIdFijo = localStorage.getItem('ecos_user_id');
-            
+
+            if (!userIdFijo) {
+                alert('Error de sincronización: No se detectó un ID de usuario activo. Por favor, cierra sesión y vuelve a ingresar.');
+                return;
+            }
+
             const payloadSuscripcion = {
-                user_id: userIdFijo,
+                user_id: parseInt(userIdFijo), // Se envía limpio como entero a la API
                 token: suscripcion
             };
 
