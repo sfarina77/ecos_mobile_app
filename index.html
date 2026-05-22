@@ -166,6 +166,13 @@
             <div id="home" class="screen">
                 <h2 class="section-title">Vista Global</h2>
                 <p class="section-subtitle">Estado de infraestructura a nivel nacional</p>
+    
+            <div class="card" id="cardNotificacionesPush" style="text-align: center; padding: 12px; border: 1px dashed #1e3a5f; margin-bottom: 15px; background: #f0fdf4;">
+                <span class="stat-label" style="display: block; margin-bottom: 8px; color: #16a34a;">Configuración Inicial Necesaria</span>
+                <button class="btn-primary" style="background-color: #16a34a; margin: 0 auto; width: 100%;" onclick="activarNotificacionesPush()">
+                    <i class="fa-solid fa-bell"></i> Activar Alertas Push
+                </button>
+            </div>
                 
                 <div class="stat-grid">
                     <div class="card stat-card">
@@ -324,12 +331,6 @@
             <div class="nav-item" onclick="showScreen('map-screen', this)"><i class="fa-solid fa-map-location-dot"></i><span>Mapa</span></div>
             <div class="nav-item" onclick="showScreen('tickets-screen', this)"><i class="fa-solid fa-clipboard-list"></i><span>Tickets</span></div>
         </nav>
-    </div>
-    <div class="card" id="cardNotificacionesPush" style="text-align: center; padding: 15px; border: 1px dashed #1e3a5f;">
-        <span class="stat-label" style="display: block; margin-bottom: 8px;">Alertas en Tiempo Real</span>
-        <button class="btn-primary" style="background-color: #16a34a; margin: 0 auto; max-width: 250px;" onclick="activarNotificacionesPush()">
-            <i class="fa-solid fa-bell"></i> Activar Alertas Push
-        </button>
     </div>
 
     <script>
