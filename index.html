@@ -668,6 +668,60 @@
             }
             promise.finally(() => { if(btn) btn.classList.remove('fa-spin'); });
         }
+        // --- ACTIVACIÓN NATIVA DE NOTIFICACIONES PUSH PARA ECOS (iOS / Android) ---
+async function activarNotificacionesPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.log('Este navegador o contenedor emulado no soporta Notificaciones Push.');
+        return;
+    }
+
+    try {
+        // 1. Registramos el Service Worker obligatorio para el fondo del iPhone
+        const registro = await navigator.serviceWorker.register('/sw.js');
+        console.log('Service Worker de ECOS registrado.');
+
+        // 2. Invocamos el cartel nativo de Apple / Google
+        const permiso = await Notification.requestPermission();
+        if (permiso !== 'granted') {
+            alert('Bloqueaste las notificaciones. Actívalas en los Ajustes del iPhone.');
+            return;
+        }
+
+        // 3. Generamos la suscripción nativa del navegador (WebPush)
+        // Usamos una clave pública estándar de identificación
+        const suscripcion = await registro.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: 'BEl62OhSg86IGX9W2pZ58mEGwS9_X1Z_p-qPnmK-pB6HwR-Nl4p6Ww7V8w7w8v8w'
+        });
+
+        // 4. Enviamos el token directo a tu API Móvil para guardarlo en la base de datos
+        const response = await fetch(`${API_BASE_URL}/api/mobile/push/subscribe`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(suscripcion)
+        });
+
+        if (response.ok) {
+            alert('¡Notificaciones Push vinculadas con éxito en este iPhone!');
+        }
+    } catch (error) {
+        console.error('Error registrando Push en el dispositivo:', error);
+    }
+}
+
+// Forzamos la ejecución de la petición de alertas 2 segundos después de que el usuario loguea con éxito
+const originalIniciarSesion = iniciarSesion;
+iniciarSesion = async function() {
+    await originalIniciarSesion();
+    setTimeout(activarNotificacionesPush, 2000);
+};
+
+const originalIngresarBiometria = ingresarConBiometria;
+ingresarConBiometria = async function() {
+    await originalIngresarBiometria();
+    setTimeout(activarNotificacionesPush, 2000);
+};
     </script>
 </body>
 </html>
